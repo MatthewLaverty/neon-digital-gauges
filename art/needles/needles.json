@@ -1,0 +1,90 @@
+{
+ "color_rgb": [
+  232,
+  77,
+  61
+ ],
+ "orientation": "points straight up; rotate about pivot_px",
+ "master": {
+  "px_per_mm": 10,
+  "pivot_px": [
+   30,
+   376
+  ],
+  "length_mm": 36.904877726392755
+ },
+ "gauges": {
+  "temp": {
+   "needle_png": "needle_temp.png",
+   "size_px": [
+    47,
+    284
+   ],
+   "pivot_px": [
+    23.0,
+    282
+   ],
+   "length_mm": 36.9,
+   "measured_photo_length_mm": 37.11,
+   "px_per_mm": 7.4766,
+   "hub_png": "hub_temp.png",
+   "hub_diameter_px": 114,
+   "hub_radius_mm": 7.3,
+   "rest_angle_deg_photo": -157.19
+  },
+  "fuel": {
+   "needle_png": "needle_fuel.png",
+   "size_px": [
+    47,
+    287
+   ],
+   "pivot_px": [
+    23.0,
+    285
+   ],
+   "length_mm": 36.9,
+   "measured_photo_length_mm": 36.83,
+   "px_per_mm": 7.5472,
+   "hub_png": "hub_fuel.png",
+   "hub_diameter_px": 112,
+   "hub_radius_mm": 7.1,
+   "rest_angle_deg_photo": -173.11
+  },
+  "speedo": {
+   "needle_png": "needle_speedo.png",
+   "size_px": [
+    29,
+    218
+   ],
+   "pivot_px": [
+    14.0,
+    216
+   ],
+   "length_mm": 47.47,
+   "measured_photo_length_mm": 47.47,
+   "px_per_mm": 4.4444,
+   "hub_png": "hub_speedo.png",
+   "hub_diameter_px": 87,
+   "hub_radius_mm": 9.3,
+   "rest_angle_deg_photo": -156.84
+  },
+  "tach": {
+   "needle_png": "needle_tach.png",
+   "size_px": [
+    35,
+    209
+   ],
+   "pivot_px": [
+    17.0,
+    207
+   ],
+   "length_mm": 36.9,
+   "measured_photo_length_mm": 36.9,
+   "px_per_mm": 5.4795,
+   "hub_png": "hub_tach.png",
+   "hub_diameter_px": 85,
+   "hub_radius_mm": 7.3,
+   "rest_angle_deg_photo": 179.08
+  }
+ }
+}

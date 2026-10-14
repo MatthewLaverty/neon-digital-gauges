@@ -1,0 +1,22 @@
+qty,part,role,unit_usd,status,source
+2,Waveshare ESP32-S3-LCD-2.8C,tach+speedo display,33 (est),core,https://www.waveshare.com/wiki/ESP32-S3-LCD-2.8C
+2,Waveshare ESP32-S3-Touch-LCD-2.1,temp+fuel display,32.99,core,https://www.waveshare.com/esp32-s3-touch-lcd-2.1.htm
+1,ESP32-S3-DevKitC-1 N8R8,hub,15 (est),core,
+1,ESP32-S3 DevKit,bench CAN simulator,15 (est),core,
+6,SN65HVD230 CAN transceiver module,CAN PHY,4.99,core,https://www.waveshare.com/sn65hvd230-can-board.htm
+1,Pololu D36V28F5,12V->5V buck,25 (est),core,https://www.pololu.com/product/3782
+1,Fuse/TVS/reverse-protection/caps kit,power protection,15 (est),core,
+1,Optocoupler + passives,VSS conditioning,8 (est),core,
+1,Momentary buttons,mode toggle,10 (est),core,
+1,Connectors/wire/perfboard,harness,60 (est),core,
+1,Donor 1995-99 Neon cluster w/ tach,teardown+scans,55 (est),core,
+1,ASA/PETG filament,mounting plate,40 (est),core,
+1,USB-CAN adapter (CANable class),bench tool,40 (est),tool,
+1,Logic analyzer,bench tool,18 (est),tool,
+1,Bench power supply,bench tool,60 (est),tool,
+1,Flex fuel sensor kit,Haltech input,115 (est),if not planned,
+1,Oil temp sensor + fitting,Haltech input,45 (est),if not planned,
+2,Waveshare ESP32-P4 3.4in round 800x800,upgrade tach+speedo,64.99,optional,https://www.waveshare.com/product/esp32-related/boards-kits/esp32-p4-wifi6-touch-lcd-3.4c.htm
+1,LilyGO T-Display-S3 (1.9in 170x320 ESP32-S3),info screen (odo/faults),9.04,core,https://lilygo.cc/en-us/products/t-display-s3
+1,SN65HVD230 (extra),info screen CAN,4.99,core,https://www.waveshare.com/sn65hvd230-can-board.htm
+1,I2C FRAM breakout,digital odometer storage,10 (est),if odometer digitized,

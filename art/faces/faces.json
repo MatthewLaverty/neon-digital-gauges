@@ -1,0 +1,110 @@
+{
+ "source_scale_px_per_mm": 10,
+ "notes": "pivot_px = needle rotation center in the 480x480 image; mm frame origin = speedo hole arc center, +y up",
+ "gauges": {
+  "temp": {
+   "px_per_mm": 7.4766,
+   "image_diameter_mm": 64.2,
+   "image_center_mm": [
+    -134.54,
+    8.18
+   ],
+   "pivot_mm": [
+    -121.88,
+    2.02
+   ],
+   "pivot_px": [
+    334.6,
+    286.1
+   ],
+   "hub_radius_mm": 7.3,
+   "hole_bbox_mm": [
+    -159.49,
+    -22.41,
+    -109.54,
+    38.65
+   ]
+  },
+  "fuel": {
+   "px_per_mm": 7.5472,
+   "image_diameter_mm": 63.6,
+   "image_center_mm": [
+    -80.46,
+    6.22
+   ],
+   "pivot_mm": [
+    -67.18,
+    0.61
+   ],
+   "pivot_px": [
+    340.2,
+    282.3
+   ],
+   "hub_radius_mm": 7.1,
+   "hole_bbox_mm": [
+    -105.16,
+    -24.23,
+    -56.6,
+    36.52
+   ]
+  },
+  "speedo": {
+   "px_per_mm": 4.4444,
+   "image_diameter_mm": 108.0,
+   "image_center_mm": [
+    -0.16,
+    -1.99
+   ],
+   "pivot_mm": [
+    -0.16,
+    -1.99
+   ],
+   "pivot_px": [
+    240.0,
+    240.0
+   ],
+   "hub_radius_mm": 9.3,
+   "hole_bbox_mm": [
+    -50.71,
+    -37.03,
+    66.99,
+    50.84
+   ],
+   "odometer_window_px": [
+    156.4,
+    353.3,
+    294.2,
+    380.0
+   ],
+   "trip_window_mm": [
+    35.0,
+    -36.0,
+    65.0,
+    -29.5
+   ]
+  },
+  "tach": {
+   "px_per_mm": 5.4795,
+   "image_diameter_mm": 87.6,
+   "image_center_mm": [
+    108.41,
+    -6.24
+   ],
+   "pivot_mm": [
+    108.41,
+    -6.24
+   ],
+   "pivot_px": [
+    240.0,
+    240.0
+   ],
+   "hub_radius_mm": 7.3,
+   "hole_bbox_mm": [
+    67.9,
+    -39.38,
+    147.98,
+    36.07
+   ]
+  }
+ }
+}
