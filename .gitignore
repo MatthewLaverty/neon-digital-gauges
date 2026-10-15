@@ -5,3 +5,4 @@ build/
 *.elf
 *.map
 .DS_Store
+__pycache__/

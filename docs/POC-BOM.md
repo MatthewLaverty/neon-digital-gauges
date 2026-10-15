@@ -14,6 +14,8 @@ Goal: a hub and one gauge board (tach, 2.8") running off fake Haltech CAN frames
 
 Estimated total: $85–100.
 
+Optional for the bench: Blink Marine PKP-2300-SI 6-key CAN keypad (204 EUR + VAT, https://shop.blinkmarine.com/product/pkp-2300-si/) plus an Amphenol AT06-4S mating plug (not included) and a 12 V supply. Use the CANable to set it to 1 Mbit/s before it joins the Haltech bus.
+
 Optional: swap the tach board for the Waveshare ESP32-P4 3.4C speedo board ($64.99, https://www.waveshare.com/esp32-p4-wifi6-touch-lcd-3.4c.htm) to prove the ESP32-P4 path first.
 
 Bus: CANable -> twisted pair -> hub transceiver -> tach transceiver, 1 Mbit/s, terminated at both ends only.
