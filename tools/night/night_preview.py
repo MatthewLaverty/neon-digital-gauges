@@ -1,45 +1,53 @@
-"""Night-mode preview: white printing -> needle orange (A8-mask recolor), coloured layers unchanged,
-plus a soft glow around the needle hub. Sampled from the owner's night photo (2026-10-14):
-un-blown glyph edges ~RGB 235,54,40 ~= needle orange 232,77,61."""
-import json, numpy as np
-from PIL import Image, ImageDraw, ImageFont
+"""Night-mode preview using art/night_palette.json (sampled from the owner's stock-cluster night photo).
+Day face layers -> night: white printing -> printing_orange; needle-orange ticks/digits (tach 6500+, 7, 8, H tick, E tick) -> red_ticks;
+km/h blue and cold tick -> kmh_and_cold_blue; needles -> needles red; plus a soft halo around each hub.
+Anti-aliasing is preserved by scaling the target colour by pixel brightness relative to the day reference colour."""
+import json, colorsys, numpy as np
+from PIL import Image, ImageDraw
 F=json.load(open('art/faces/faces.json'))['gauges']; N=json.load(open('art/needles/needles.json'))
-ORANGE=np.array(N['color_rgb'],float)
-HALO=dict(inner=1.0, outer=2.3, peak=0.45)   # radii in hub radii, peak opacity
+P=json.load(open('art/night_palette.json')); H=P['halo']
+C={k:np.array(P[k],float) for k in ('printing_orange','kmh_and_cold_blue','red_ticks','needles')}
+def hue_sat(a):
+    mx=a.max(2); mn=a.min(2); d=mx-mn; sat=np.where(mx>0,d/np.maximum(mx,1),0)
+    r,g,b=a[...,0],a[...,1],a[...,2]; dd=np.maximum(d,1e-6)
+    h=np.where(mx==r,((g-b)/dd)%6,np.where(mx==g,(b-r)/dd+2,(r-g)/dd+4))*60
+    return h,sat,mx
 def night_face(rgb):
-    a=rgb.astype(float); mx=a.max(2); mn=a.min(2); sat=(mx-mn)/np.maximum(mx,1)
-    white=(sat<0.25)                                  # low-saturation pixels = white printing (incl. anti-aliasing)
-    alpha=(mn/255.0)*white                            # A8 mask: brightness of the white print
-    out=a.copy()
-    out[white]=0
-    out+=alpha[...,None]*ORANGE
-    return np.clip(out,0,255), alpha
+    a=rgb.astype(float); h,s,v=hue_sat(a); out=np.zeros_like(a)
+    white=s<0.25; red=(~white)&((h<40)|(h>330)); blue=(~white)&(h>150)&(h<260)
+    out[white]=(a[white].min(1)/255.0)[:,None]*C['printing_orange']
+    out[red]=np.minimum(v[red]/232.0,1)[:,None]*C['red_ticks']
+    out[blue]=np.minimum(v[blue]/223.0,1)[:,None]*C['kmh_and_cold_blue']
+    return np.clip(out,0,255)
 def halo(shape,c,r):
     yy,xx=np.mgrid[:shape[0],:shape[1]]; d=np.hypot(xx-c[0],yy-c[1])/r
-    g=np.where(d<HALO['inner'],1.0,np.exp(-((d-HALO['inner'])/((HALO['outer']-HALO['inner'])/2.2))**2))
-    g[d>HALO['outer']*1.3]=0
-    return g*HALO['peak']
+    w=(H['outer_hub_radii']-H['inner_hub_radii'])/2.2
+    g=np.where(d<H['inner_hub_radii'],1.0,np.exp(-((d-H['inner_hub_radii'])/w)**2))
+    g[d>H['outer_hub_radii']*1.3]=0
+    return g*H['peak_opacity']
+def needle_img(path,night):
+    nd=Image.open(path).convert('RGBA')
+    if not night: return nd
+    a=np.asarray(nd).astype(float); lum=a[...,:3].max(2)/232.0
+    a[...,:3]=np.clip(lum[...,None],0,1)*C['needles']; return Image.fromarray(a.astype(np.uint8),'RGBA')
 def compose(k,angle,night):
     g=F[k]; n=N['gauges'][k]; face=np.asarray(Image.open(f'art/faces/{k}_480.png').convert('RGB'))
     img=face.astype(float)
     if night:
-        img,_=night_face(face)
-        hr=g['hub_radius_mm']*g['px_per_mm']; h=halo(img.shape,g['pivot_px'],hr)
-        img=img*(1-h[...,None])+ORANGE*h[...,None]
+        img=night_face(face); hc=C[H['color']]
+        hm=halo(img.shape,g['pivot_px'],g['hub_radius_mm']*g['px_per_mm']); img=img*(1-hm[...,None])+hc*hm[...,None]
     im=Image.fromarray(img.astype(np.uint8)).convert('RGBA')
-    nd=Image.open(f"art/needles/{n['needle_png']}").convert('RGBA'); px,py=n['pivot_px']
-    W=int(2*max(nd.size)+4); canvas=Image.new('RGBA',(W,W)); canvas.paste(nd,(int(W/2-px),int(W/2-py)))
-    canvas=canvas.rotate(-angle,resample=Image.BICUBIC,center=(W/2,W/2))
-    cx,cy=g['pivot_px']; im.alpha_composite(canvas,(int(cx-W/2),int(cy-W/2)))
+    nd=needle_img(f"art/needles/{n['needle_png']}",night); px,py=n['pivot_px']
+    W=int(2*max(nd.size)+4); cv=Image.new('RGBA',(W,W)); cv.paste(nd,(int(W/2-px),int(W/2-py)))
+    cv=cv.rotate(-angle,resample=Image.BICUBIC,center=(W/2,W/2)); cx,cy=g['pivot_px']
+    im.alpha_composite(cv,(int(cx-W/2),int(cy-W/2)))
     hub=Image.open(f"art/needles/{n['hub_png']}").convert('RGBA'); im.alpha_composite(hub,(int(cx-hub.size[0]/2),int(cy-hub.size[1]/2)))
     return im.convert('RGB')
 if __name__=='__main__':
-    ang={'tach':-60,'speedo':-30,'temp':-120,'fuel':-80}
-    rows=[]
-    for k in ('temp','fuel','speedo','tach'):
-        rows.append((compose(k,ang[k],False),compose(k,ang[k],True)))
-    W=480*4+30; out=Image.new('RGB',(W,480*2+70),(30,30,30)); d=ImageDraw.Draw(out)
-    for i,(day,night) in enumerate(rows):
-        out.paste(day,(i*490,30)); out.paste(night,(i*490,30+480+10))
-    d.text((8,8),'Day (top) vs night (bottom): white printing -> needle orange, coloured layers and needles unchanged, hub halo',fill=(220,220,220))
+    ang={'tach':-60,'speedo':-75,'temp':-100,'fuel':-80}
+    out=Image.new('RGB',(480*4+30,480*2+70),(30,30,30)); d=ImageDraw.Draw(out)
+    for i,k in enumerate(('temp','fuel','speedo','tach')):
+        out.paste(compose(k,ang[k],False),(i*490,30)); out.paste(compose(k,ang[k],True),(i*490,520))
+        compose(k,ang[k],True).save(f'art/preview/{k}_480_night.png')
+    d.text((8,8),'Day (top) vs night (bottom), night palette sampled from stock-cluster night photo; halo to 1.65 hub radii',fill=(220,220,220))
     out.save('art/preview/night_mode_preview.png'); print('ok')
