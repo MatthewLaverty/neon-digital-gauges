@@ -1,9 +1,46 @@
 {
  "source": "Owner reference photo of a stock Neon cluster at night (2026-10-14), median of lit pixels; video frame, camera white balance unknown",
- "printing_orange": [250, 100, 20],
- "kmh_and_cold_blue": [20, 170, 240],
- "red_ticks": [240, 5, 50],
- "needles": [230, 5, 25],
- "halo": {"color": "printing_orange", "inner_hub_radii": 1.0, "outer_hub_radii": 1.65, "peak_opacity": 0.45},
- "day_source_colors": {"white": [255,255,255], "needle_orange": [232,77,61], "kmh_blue": [147,200,223]}
+ "printing_orange": [
+  250,
+  100,
+  20
+ ],
+ "kmh_and_cold_blue": [
+  20,
+  170,
+  240
+ ],
+ "red_ticks": [
+  240,
+  5,
+  50
+ ],
+ "needles": [
+  230,
+  5,
+  25
+ ],
+ "halo": {
+  "color": "printing_orange",
+  "inner_hub_radii": 1.0,
+  "outer_hub_radii": 1.65,
+  "peak_opacity": 0.315
+ },
+ "day_source_colors": {
+  "white": [
+   255,
+   255,
+   255
+  ],
+  "needle_orange": [
+   232,
+   77,
+   61
+  ],
+  "kmh_blue": [
+   147,
+   200,
+   223
+  ]
+ }
 }
