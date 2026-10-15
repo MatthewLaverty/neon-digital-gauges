@@ -1,0 +1,13 @@
+{
+ "static_layer": "fuel_ethanol_static_A8.png",
+ "ring_center_px": [
+  313,
+  137
+ ],
+ "ring_radius_px": 31,
+ "readout": "E + int(pct); E alone at 0 %; text fit inside ring",
+ "needle_angle_E_deg": -115.91,
+ "needle_angle_F_deg": -29.45,
+ "mapping": "linear ethanol fraction 0..1",
+ "glyphs": "art/glyphs/"
+}
