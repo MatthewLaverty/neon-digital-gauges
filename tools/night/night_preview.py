@@ -34,7 +34,7 @@ def compose(k,angle,night):
     hub=Image.open(f"art/needles/{n['hub_png']}").convert('RGBA'); im.alpha_composite(hub,(int(cx-hub.size[0]/2),int(cy-hub.size[1]/2)))
     return im.convert('RGB')
 if __name__=='__main__':
-    ang={'tach':40,'speedo':-30,'temp':-120,'fuel':-80}
+    ang={'tach':-60,'speedo':-30,'temp':-120,'fuel':-80}
     rows=[]
     for k in ('temp','fuel','speedo','tach'):
         rows.append((compose(k,ang[k],False),compose(k,ang[k],True)))
