@@ -22,6 +22,8 @@ Status: Phase 0 (discovery). Prepared 2026-10-12. Rev 2: decisions log added (se
 | 2026-10-13 | Photo-derived faces/overlay found skewed (~5% on tach). Keep them as temporary assets; redo from flatbed scans later. |
 | 2026-10-14 | The cluster can't be scanned non-destructively. v2 faces and overlay rebuilt from needle-free photos with geometric rectification (section 4.2d). |
 | 2026-10-14 | Frame leveled: rotated 2.17° CCW. Printed text (RPMX1000, FUEL DOOR, MPH, km/h, TYPE AC, MI) measured 2.05–2.30° clockwise; it now reads 0.0°. Dial sweeps are within 0.5° of symmetric about vertical. Tach 0 tick rebuilt from the 1000 rpm tick (the knob post hid its end); the stop-pin mask by the 8 was tightened. |
+| 2026-10-14 | Odometer goes digital (owner): the drum module is too large to keep (rear photos IMG_7579/7580/7582). Odometer is drawn in the bottom of the speedo face, trip meter where FUEL DOOR is printed on the tach. Exact stock text placement is not required. Speedo must stay stock size; the tach may shrink slightly. The white rear body will be trimmed to take the screens. |
+| 2026-10-14 | Screen layout PROPOSED (section 4.2e): 4.0" round 720x720 speedo (ESP32-P4), 2.8" round 480x480 tach at about 89% art scale (ESP32-S3), one 5" 800x480 behind temp+fuel (ESP32-S3). Three display boards plus the hub. Pending owner approval. |
 | 2026-10-14 | Odometer confirmed (owner): mechanical drum counter behind/below the speedo face plate, viewed through a window inside the speedo hole; trip drums in the lower-right notch. Geometry conflict with a full-size round speedo display recorded in 4.4. Option A vs B to be reconfirmed by the owner. |
 | 2026-10-14 | Color rules updated: tach numerals 7 and 8 red like the 6500+ ticks; temp H tick red and C tick km/h blue (letters white); fuel E tick red (letter white). |
 | 2026-10-13 | Face art rules: flat black background, pure white printing, tach 6500–8000 ticks and needles in the measured needle orange (RGB 232,77,61), km/h scale keeps the photographed blue (RGB 147,200,223). The tach needle is the master needle for all four gauges. |
@@ -204,6 +206,29 @@ Display-fit consequences (arithmetic from nominal diagonals, not datasheet activ
 - Round screens sized to the temp and fuel holes would overlap each other and the speedo screen. Default: one rectangular panel behind both (a 5 in 15:9 panel, about 108 x 65 mm, spans both holes).
 
 Assets: `art/` and `hardware/overlay/`. Pipeline scripts: `tools/face-extract/` (v1) and `tools/face-extract/v2/`.
+
+### 4.2e Screen layout proposal (2026-10-14, pending approval)
+
+Drawing: `docs/layout/screen_layout.png` (script `tools/screen_layout.py`; overlay frame mm). Bare panels, not dev boards with cover glass: Waveshare's ESP32-P4 4.0" round board is 126 x 126 mm and the 3.4" is 115 x 115 mm ([Waveshare](https://www.waveshare.com/esp32-p4-wifi6-touch-lcd-3.4c.htm)). Centered on the pivots, which are 106.9 mm apart, the two would collide by about 14 mm.
+
+| Gauge | Panel | Active / outline | Fit result |
+|---|---|---|---|
+| Speedo | 4.0" round 720x720 MIPI, bare (e.g. [Raystar RFN04000A2A0YWMNN00](https://www.raystar-optronics.com/4.3-4.6-tft-lcd-display-module/720x720-tft.html)) | Ø101.52 / 105.3 x 109.62 x 2.3 mm | Stock size. Covers the hole except the old trip notch (333 mm², closed in the new overlay). Odometer band (31 x 6.6 mm) sits at the bottom inside the hole |
+| Tach | 2.8" round 480x480 (ST7701, RGB), bare | Ø70.13 / about 73.0 x 76.5 mm ([Raystar round range](https://www.raystar-optronics.com/round-tft-lcd-display.htm)) | Art scaled 0.887 (tick tips 38.4 → 34.1 mm radius); the overlay's tach hole shrinks to match. Clears all indicator windows. Trip meter in the FUEL DOOR spot |
+| Temp + fuel | 5.0" 800x480 RGB, bare (e.g. [EA TFT050-84AITP](https://www.displayvisions.us/eng/pdf/grafik/TFT050-84AITP.pdf)) | 108 x 64.8 / 120.7 x 75.8 mm | Covers both holes completely at full size |
+
+Conflicts (from the drawing):
+- The 5" frame overlaps the upper-left turn-signal slot (151 mm²), the upper-left oval window (123 mm²) and the two left lamp windows (45 and 97 mm²). Options: draw those telltales on the 5" screen (the oval window sits mostly over its active area), or light them from the side.
+- The 5" and 4" frames overlap by 88 mm², bezel only and outside both visible holes. Stagger the depth by about 3 mm, or pick a 5" panel with a narrower right bezel.
+- Alternative tach: a bare 3.4" round (Ø87.6 active, 94.9 x 96.95 mm, [DisplayModule](https://www.displaymodule.com/products/3-4-inch-800x800-tft-display-mipi-dm-tftr34-478)) keeps the tach at full size. It overlaps the upper-right oval (12 mm²), the slot (3 mm²) and both right lamp windows (43 and 34 mm²), and it needs a second ESP32-P4 because it is MIPI.
+
+Electronics:
+- Speedo on an ESP32-P4. Its MIPI DSI is 2-lane (Waveshare's 720x720 4C runs 2 lanes at 1.5 Gbps; [Waveshare repo](https://github.com/waveshareteam/ESP32-P4-WIFI6-Touch-LCD-XC)). The panel's driver must support 2-lane mode; some 4" panels are specified as 4-lane. It also needs an FPC adapter and a backlight driver. This is the main custom-hardware item. The ESP32-P4 has three TWAI controllers with listen-only mode ([Espressif datasheet](https://documentation.espressif.com/esp32-p4_datasheet_en.pdf)).
+- Tach and temp+fuel on ESP32-S3 RGB-parallel, as before; one board drives both small gauges.
+- The info screen (4.2c) is no longer needed for odometer/trip; it is optional for the ECU fault page.
+- Pixel density: 720/101.52 = 7.09 px/mm (speedo), 6.84 (tach), 7.41 (5"). Re-export the art from the 10 px/mm master.
+
+Open: depth behind the faces and the trim lines in the white body (IMG_7582) are not mapped yet; panel thickness is 2.1–4.3 mm before the boards behind.
 
 ### 4.2c Info screen under fuel/temp (~1 in working height)
 
