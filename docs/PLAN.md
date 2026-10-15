@@ -20,6 +20,8 @@ Status: Phase 0 (discovery). Prepared 2026-10-12. Rev 2: decisions log added (se
 | 2026-10-12 | Fuel/temp gauges may shift up slightly to make room for the info screen. |
 | 2026-10-13 | Measurements redone from the silver overlay laid flat with tape (section 4.2d). They replace 4.2b, which underestimated the faces by about 30–40 %. |
 | 2026-10-13 | Photo-derived faces/overlay found skewed (~5% on tach). Keep them as temporary assets; redo from flatbed scans later. |
+| 2026-10-14 | The cluster can't be scanned non-destructively. v2 faces and overlay rebuilt from needle-free photos with geometric rectification (section 4.2d). |
+| 2026-10-14 | Color rules updated: tach numerals 7 and 8 red like the 6500+ ticks; temp H tick red and C tick km/h blue (letters white); fuel E tick red (letter white). |
 | 2026-10-13 | Face art rules: flat black background, pure white printing, tach 6500–8000 ticks and needles in the measured needle orange (RGB 232,77,61), km/h scale keeps the photographed blue (RGB 147,200,223). The tach needle is the master needle for all four gauges. |
 | 2026-10-12 | Odometer (earlier): keep stock (option A). It sits at the bottom of the cluster, with room above for the displays. The stock cluster board stays powered and keeps reading VSS on G7. Digital odometer (FRAM) dropped. |
 
@@ -180,31 +182,26 @@ Findings:
 
 Annotated image: `docs/neon-gauge-measurements.jpg`.
 
-### 4.2d Silver overlay measurements (2026-10-13) — current, but skewed
+### 4.2d Overlay and face measurements — v2 (2026-10-14, rectified)
 
-> **TEMPORARY ASSETS (2026-10-13):** the faces and overlay were made from angled phone photos and carry a perspective skew. The tach tick ring is about 5% elliptical, with uneven tick spacing (13.7–14.9°); the speedo is about 1.3%. The overlay STL shares the same distortion. Use these for layout and firmware development only. Replace them with flatbed scans (600 dpi, needles removed, steel rule in frame) before printing final parts or art.
+v1 (2026-10-13) had a perspective skew of about 5% on the tach. v2 uses needle-free photos (IMG_7574–7577) and a homography fit that makes the tach and speedo tick rings true, evenly spaced circles, with the tape beside the flat overlay as an even-spacing constraint. Fit error 0.09 mm. Scale is about ±0.5%; v1 was 1.1% too large. Method: `art/README.md`.
 
-Source: the silver overlay photographed flat on the mat with the tape beside it (237.5 px/in; the tape scale varies 235–243 px/in across the frame, so treat sizes as about ±2 %). The bare face was registered to the installed-overlay photo, giving a hole-to-face registration error under 0.1 mm for temp, fuel and speedo. The tach needed a 1 mm correction. The frame origin is the speedo hole's arc center, with +y up.
-
-| Hole | Size (W x H) | Needle pivot (mm) | Face image (480 px) covers | px/mm at 480 |
+| Hole | Size (W x H) | Needle pivot (mm) | Face image (480 px) covers | px/mm |
 |---|---|---|---|---|
-| Temp | 49.9 x 61.1 mm | (−121.9, 2.0) | 64.2 mm circle | 7.48 |
-| Fuel | 48.6 x 60.7 mm | (−67.2, 0.6) | 63.6 mm circle | 7.55 |
-| Speedo | arc r 50.8 mm (≈102 mm dia), flat bottom 37 mm below origin, plus trip-odometer notch | (−0.2, −2.0) | 108 mm circle centered on pivot | 4.44 |
-| Tach | circle r 40.0 mm plus a knob lobe at lower left | (108.4, −6.2) | 87.6 mm circle centered on pivot | 5.48 |
+| Temp | 50.9 x 62.1 mm | (−121.7, 3.2) | 65.2 mm | 7.36 |
+| Fuel | 49.0 x 61.5 mm | (−66.9, 1.4) | 64.2 mm | 7.48 |
+| Speedo | 118.5 x 88.1 mm (arc ≈100 mm dia + trip notch) | (0.2, −1.0) | 107.2 mm on pivot | 4.48 |
+| Tach | 78.6 x 75.3 mm (+ knob lobe) | (107.0, −5.2) | 86.2 mm on pivot | 5.57 |
 
-Overall overlay: about 389 x 125 mm.
+Overlay: about 390.4 x 125.0 mm.
+- Dials: tach ticks 38.4 mm radius, 14.41°/500 rpm, 230.6° sweep. Speedo 49.6 mm, 15.43°/10 mph, 231.4° sweep (0–150). Fuel 21.6° per quarter.
+- Needles: tach 36.2, fuel 37.2, temp 37.9, speedo 47.2 mm (pivot to tip). All about 2.4 → 1.8 mm wide.
 
-Needles: all four are the same design. They are about 2.4 mm wide at the hub, tapering to 1.8 mm. Temp, fuel and tach are about 37 mm from pivot to tip; speedo is about 47.5 mm.
+Display-fit consequences (arithmetic from nominal diagonals, not datasheet active areas):
+- A 2.8 in round panel (about 71 mm) is too small for the tach and speedo. A 3.4 in (about 86 mm) covers the tach. The speedo needs about 4 in, or a smaller window with shrunk art.
+- Round screens sized to the temp and fuel holes would overlap each other and the speedo screen. Default: one rectangular panel behind both (a 5 in 15:9 panel, about 108 x 65 mm, spans both holes).
 
-Display-fit consequences (arithmetic from the nominal diagonals, not datasheet active areas):
-- A 2.8 in round panel (about 71 mm) is smaller than the tach hole (80 mm) and the speedo arc (102 mm).
-- A 3.4 in round panel (about 86 mm) covers the tach.
-- The speedo needs about 4 in (about 102 mm) to fill the stock hole. Otherwise, use a smaller window and shrink the art.
-- Round screens sized to the temp and fuel holes (64 mm each) would overlap each other by about 10 mm and overlap the speedo screen by about 5 mm. Default plan: one rectangular panel behind both small gauges. A 5 in 15:9 panel (about 108 x 65 mm nominal) spans both holes.
-- The overlay window mode "circle"/"intersect" in `hardware/overlay/overlay.scad` resizes a stock window to a panel's real active diameter once the panels are chosen.
-
-Assets: `art/` (faces, needles, previews, JSON metadata) and `hardware/overlay/` (parametric overlay). The pipeline scripts are in `tools/face-extract/`.
+Assets: `art/` and `hardware/overlay/`. Pipeline scripts: `tools/face-extract/` (v1) and `tools/face-extract/v2/`.
 
 ### 4.2c Info screen under fuel/temp (~1 in working height)
 

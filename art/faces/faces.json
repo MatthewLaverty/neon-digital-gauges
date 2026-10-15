@@ -1,109 +1,110 @@
 {
+ "version": "v2 (2026-10-14, rectified, needle-free photos IMG_7574-7577)",
  "source_scale_px_per_mm": 10,
  "notes": "pivot_px = needle rotation center in the 480x480 image; mm frame origin = speedo hole arc center, +y up",
  "gauges": {
   "temp": {
-   "px_per_mm": 7.4766,
-   "image_diameter_mm": 64.2,
+   "px_per_mm": 7.362,
+   "image_diameter_mm": 65.2,
    "image_center_mm": [
-    -134.54,
-    8.18
+    -135.73,
+    8.1
    ],
    "pivot_mm": [
-    -121.88,
-    2.02
+    -121.7,
+    3.16
    ],
    "pivot_px": [
-    334.6,
-    286.1
+    343.3,
+    276.4
    ],
-   "hub_radius_mm": 7.3,
+   "hub_radius_mm": 7.22,
    "hole_bbox_mm": [
-    -159.49,
-    -22.41,
-    -109.54,
-    38.65
+    -161.32,
+    -22.96,
+    -110.43,
+    39.13
    ]
   },
   "fuel": {
-   "px_per_mm": 7.5472,
-   "image_diameter_mm": 63.6,
+   "px_per_mm": 7.4766,
+   "image_diameter_mm": 64.2,
    "image_center_mm": [
-    -80.46,
-    6.22
+    -81.41,
+    6.21
    ],
    "pivot_mm": [
-    -67.18,
-    0.61
+    -66.87,
+    1.4
    ],
    "pivot_px": [
-    340.2,
-    282.3
+    348.7,
+    275.9
    ],
-   "hub_radius_mm": 7.1,
+   "hub_radius_mm": 7.02,
    "hole_bbox_mm": [
-    -105.16,
-    -24.23,
-    -56.6,
-    36.52
+    -105.88,
+    -24.7,
+    -56.88,
+    36.81
    ]
   },
   "speedo": {
-   "px_per_mm": 4.4444,
-   "image_diameter_mm": 108.0,
+   "px_per_mm": 4.4776,
+   "image_diameter_mm": 107.2,
    "image_center_mm": [
-    -0.16,
-    -1.99
+    0.19,
+    -1.0
    ],
    "pivot_mm": [
-    -0.16,
-    -1.99
+    0.19,
+    -1.0
    ],
    "pivot_px": [
     240.0,
     240.0
    ],
-   "hub_radius_mm": 9.3,
+   "hub_radius_mm": 9.2,
    "hole_bbox_mm": [
-    -50.71,
-    -37.03,
-    66.99,
-    50.84
+    -50.79,
+    -37.31,
+    67.74,
+    50.79
    ],
    "odometer_window_px": [
-    156.4,
-    353.3,
-    294.2,
-    380.0
+    157.8,
+    360.3,
+    297.7,
+    387.2
    ],
    "trip_window_mm": [
-    35.0,
-    -36.0,
-    65.0,
-    -29.5
+    36.09,
+    -36.36,
+    65.63,
+    -29.68
    ]
   },
   "tach": {
-   "px_per_mm": 5.4795,
-   "image_diameter_mm": 87.6,
+   "px_per_mm": 5.5684,
+   "image_diameter_mm": 86.2,
    "image_center_mm": [
-    108.41,
-    -6.24
+    106.96,
+    -5.17
    ],
    "pivot_mm": [
-    108.41,
-    -6.24
+    106.96,
+    -5.17
    ],
    "pivot_px": [
     240.0,
     240.0
    ],
-   "hub_radius_mm": 7.3,
+   "hub_radius_mm": 7.22,
    "hole_bbox_mm": [
-    67.9,
-    -39.38,
-    147.98,
-    36.07
+    67.37,
+    -39.45,
+    145.95,
+    35.81
    ]
   }
  }

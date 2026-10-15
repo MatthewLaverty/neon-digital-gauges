@@ -1,45 +1,65 @@
-# Gauge art (from photos, 2026-10-13)
+# Gauge art — v2 (2026-10-14)
 
-> **TEMPORARY ASSETS (2026-10-13):** the faces and overlay were made from angled phone photos and carry a perspective skew. The tach tick ring is about 5% elliptical, with uneven tick spacing (13.7–14.9°); the speedo is about 1.3%. The overlay STL shares the same distortion. Use these for layout and firmware development only. Replace them with flatbed scans (600 dpi, needles removed, steel rule in frame) before printing final parts or art.
+Built from IMG_7574–7577: the cluster with the needles removed, shot close to straight-on. Registered to the earlier overlay frame, then rectified. v1 (from angled photos with needles in place) had a perspective skew of about 5% on the tach; v2 replaces it.
 
-Extracted from IMG_7567 (export 150 mph face, housing off) and registered to the silver overlay (IMG_7568 flat, IMG_7569 installed). Shot at 2x on an iPhone 16 Pro Max.
+## How v2 was rectified
+- **Shape:** one homography was fit so that the tach (17) and speedo (16) tick tips and inner ends fall on true circles at even angular steps. The temp and fuel arcs were included as circles, and the tape lying flat beside the overlay (IMG_7568) was required to have even inch spacing. Fit error was 0.09 mm across 66 tick endpoints. Tape spacing varies 0.3% after the fit, vs 2.6% before.
+  - Tach tick ring: ellipse ratio 0.948 → 0.993. Speedo: 0.971 → 0.994.
+- **Absolute scale:** from that tape, about ±0.5%. The v1 frame was 1.1% too large.
+- **Pivots:**
+  - Tach and speedo: the fitted tick-circle centers.
+  - Fuel: its five ticks meet within 0.3 px.
+  - Temp: four ticks meet within 0.4 mm, and agree with the shaft bushing to 0.3 mm. The temp arc itself is about 1.3 mm off-center from the pivot.
+- **Face-to-hole alignment:** checked per gauge against the installed-overlay photo (IMG_7569). Temp, fuel and speedo agree within 0.1 mm. The tach needed a 1 mm shift, which is applied.
+
+## Dial geometry (measured)
+| | Tick tip radius | Step | Sweep |
+|---|---|---|---|
+| Tach | 38.4 mm | 14.41° per 500 rpm | 230.6° (0–8000) |
+| Speedo | 49.6 mm | 15.43° per 10 mph | 231.4° (0–150) |
+| Fuel | — | 21.6° per 1/4 tank | 86.4° (E–F) |
+
+## Color rules
+- Background flat black (0,0,0). All letters and numerals white, except tach 7 and 8.
+- **Red** = needle orange-red (232,77,61), used for:
+  - tach 6500, 7000, 7500 and 8000 ticks
+  - tach numerals 7 and 8
+  - temp H tick (not the letter)
+  - fuel E tick (not the letter)
+- **Blue** = photographed km/h blue (147,200,223), used for:
+  - the km/h numerals and dots
+  - "km/h"
+  - "TYPE AC"
+  - the temp C (cold) tick (not the letter)
 
 ## faces/
-- `temp_480.png`, `fuel_480.png`, `speedo_480.png`, `tach_480.png`: 480x480 RGB.
-  - Flat black (0,0,0) background, pure white printing.
-  - Needle orange (232,77,61) for the temp H tick and the tach 6500–8000 ticks.
-  - Photographed blue (147,200,223) for the km/h scale, TYPE AC and the blue dots.
-  - Everything outside the stock hole plus 3 mm is black.
-- `faces.json`: px/mm, the physical diameter each image covers, image center and pivot (in mm, overlay frame), `pivot_px` (needle rotation center in the image), hub radius, and hole bounding box.
-  - The speedo entry also has `odometer_window_px` (the rectangle where a digital odometer can be drawn) and `trip_window_mm`.
-- `cluster_master_10pxmm.png`: the whole cleaned face at 10 px/mm.
-  - Pixel (u, v) maps to mm with x = u/10 − 205, y = 68 − v/10.
-  - Use it to re-crop for a different panel size.
+- `temp_480.png`, `fuel_480.png`, `speedo_480.png`, `tach_480.png`: 480x480 RGB. Everything outside the stock hole plus 3 mm is black.
+- `faces.json`: px/mm, the physical diameter each image covers, image center and pivot (mm, overlay frame), `pivot_px` in each image, hub radius, and hole bounding box.
+  - The speedo entry also has `odometer_window_px` and `trip_window_mm`.
 
-Image framing:
-- Speedo and tach are centered on the needle pivot. Their radius is the farthest hole edge plus 1 mm bleed; the speedo trip notch is excluded.
-- Temp and fuel are centered on the smallest circle around the hole, plus 1 mm. The pivot is off-center, at about (335, 286) px.
+| Gauge | px/mm | Image covers | pivot_px |
+|---|---|---|---|
+| Temp | 7.36 | 65.2 mm | (343.3, 276.4) |
+| Fuel | 7.48 | 64.2 mm | (348.7, 275.9) |
+| Speedo | 4.48 | 107.2 mm | (240, 240) |
+| Tach | 5.57 | 86.2 mm | (240, 240) |
+
+- `cluster_master_10pxmm.png`: the whole cleaned face at 10 px/mm. x_mm = u/10 − 205, y_mm = 68 − v/10.
 
 ## needles/
-- `needle_master_10pxmm.png`: the tach needle, pointing up, flat needle orange, with an anti-aliased alpha. Pivot at (30, 377).
-- `needle_<gauge>.png`: sized for that gauge's face px/mm, pointing up. `needles.json` gives `pivot_px` in each PNG.
-  - Temp and fuel use the tach needle at 1:1 physical size, because they measured the same: 37.1 and 36.8 mm vs 36.9 mm.
-  - Speedo is stretched in length to 47.5 mm, with the width kept.
-- `hub_<gauge>.png`: dark hub caps (RGB 20,20,20 with a lighter rim) at the measured hub radius. Draw them over the needle.
-- In LVGL, set the image pivot to `pivot_px` and rotate. The needle is drawn pointing up, so angle 0 = 12 o'clock.
+- `needle_master_10pxmm.png`: the tach needle (from IMG_7567, rectified), pointing up, flat red with an anti-aliased alpha.
+- `needle_<gauge>.png`: one per gauge at that face's px/mm, pointing up.
+  - Each is scaled lengthwise to its measured needle: tach 36.2, fuel 37.2, temp 37.9, speedo 47.2 mm (pivot to tip). Width stays the tach's (about 2.4 → 1.8 mm).
+  - `needles.json` gives `pivot_px` for each PNG.
+- `hub_<gauge>.png`: dark hub caps at the measured hub radius. Draw them over the needle.
+- In LVGL, set the image pivot to `pivot_px` and rotate. Angle 0 = needle pointing to 12 o'clock.
 
 ## preview/
 - `*_holecheck.png`: each face with the overlay hole (magenta) and pivot (green).
-- `*_with_needle.png` and `all_with_needles.png`: needles and hubs placed at demo angles.
-- `cluster_mockup.png`: all four faces behind the overlay. `cluster_mockup_screen_outlines.png` adds the default screen frames from the STL.
+- `*_with_needle.png`, `all_with_needles.png`: needles and hubs at demo angles.
+- `cluster_mockup.png`, `cluster_mockup_screen_outlines.png`: everything behind the overlay at true scale.
 
-## Needs redraw (hidden under the needles or knob in the photo)
-- Temp: the "C" and the lowest ticks next to it are covered by the needle; only a fragment remains.
-- Speedo: the "0" mph numeral and the "0" km/h label are partly covered.
-- Tach: the area behind the trip-reset knob post is assumed blank.
-- Odometer drums were removed. The window is black; draw digits there or leave it as a mask.
-
-## Known limits
-- Scale is about ±2 % (tape scale varies across the photo). Caliper one real hole and correct `scale_x`/`scale_y` in the overlay if needed.
-- Printing edges come from a faded, photographed face at about 10 px/mm, so they're slightly soft. For final art, trace the masters to vector (Inkscape trace bitmap, or redraw the numerals in a matching font).
-- Colors are flat fills by design (per the color rules above); photo color is used only to classify each element.
+## Remaining limits
+- Edges come from photos at about 15–17 px/mm (resampled to 10), so they're slightly soft. Trace to vector for final art if needed.
+- Areas hidden behind the trip-reset knob post (tach, lower left) are assumed blank. The odometer windows are black.
+- The stock overlay holes sit very close to some ticks (tach 0, speedo 0, temp arc). That's how the stock parts are; it isn't a registration error.
