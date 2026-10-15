@@ -21,6 +21,7 @@ Status: Phase 0 (discovery). Prepared 2026-10-12. Rev 2: decisions log added (se
 | 2026-10-13 | Measurements redone from the silver overlay laid flat with tape (section 4.2d). They replace 4.2b, which underestimated the faces by about 30–40 %. |
 | 2026-10-13 | Photo-derived faces/overlay found skewed (~5% on tach). Keep them as temporary assets; redo from flatbed scans later. |
 | 2026-10-14 | The cluster can't be scanned non-destructively. v2 faces and overlay rebuilt from needle-free photos with geometric rectification (section 4.2d). |
+| 2026-10-14 | Frame leveled: rotated 2.17° CCW. Printed text (RPMX1000, FUEL DOOR, MPH, km/h, TYPE AC, MI) measured 2.05–2.30° clockwise; it now reads 0.0°. Dial sweeps are within 0.5° of symmetric about vertical. Tach 0 tick rebuilt from the 1000 rpm tick (the knob post hid its end); the stop-pin mask by the 8 was tightened. |
 | 2026-10-14 | Color rules updated: tach numerals 7 and 8 red like the 6500+ ticks; temp H tick red and C tick km/h blue (letters white); fuel E tick red (letter white). |
 | 2026-10-13 | Face art rules: flat black background, pure white printing, tach 6500–8000 ticks and needles in the measured needle orange (RGB 232,77,61), km/h scale keeps the photographed blue (RGB 147,200,223). The tach needle is the master needle for all four gauges. |
 | 2026-10-12 | Odometer (earlier): keep stock (option A). It sits at the bottom of the cluster, with room above for the displays. The stock cluster board stays powered and keeps reading VSS on G7. Digital odometer (FRAM) dropped. |
@@ -188,12 +189,12 @@ v1 (2026-10-13) had a perspective skew of about 5% on the tach. v2 uses needle-f
 
 | Hole | Size (W x H) | Needle pivot (mm) | Face image (480 px) covers | px/mm |
 |---|---|---|---|---|
-| Temp | 50.9 x 62.1 mm | (−121.7, 3.2) | 65.2 mm | 7.36 |
-| Fuel | 49.0 x 61.5 mm | (−66.9, 1.4) | 64.2 mm | 7.48 |
-| Speedo | 118.5 x 88.1 mm (arc ≈100 mm dia + trip notch) | (0.2, −1.0) | 107.2 mm on pivot | 4.48 |
-| Tach | 78.6 x 75.3 mm (+ knob lobe) | (107.0, −5.2) | 86.2 mm on pivot | 5.57 |
+| Temp | 50.6 x 62.3 mm | (-121.7, -1.5) | 65.2 mm | 7.36 |
+| Fuel | 48.8 x 61.7 mm | (-66.9, -1.1) | 64.2 mm | 7.48 |
+| Speedo | 119.8 x 85.8 mm (arc ≈100 mm dia + trip notch) | (0.2, -1.0) | 107.2 mm on pivot | 4.48 |
+| Tach | 78.7 x 74.4 mm (+ knob lobe) | (107.1, -1.1) | 86.2 mm on pivot | 5.57 |
 
-Overlay: about 390.4 x 125.0 mm.
+Overlay: about 392.3 x 118.8 mm, measured level. The pre-level v2 figure of 125 mm was the bounding box of the tilted outline.
 - Dials: tach ticks 38.4 mm radius, 14.41°/500 rpm, 230.6° sweep. Speedo 49.6 mm, 15.43°/10 mph, 231.4° sweep (0–150). Fuel 21.6° per quarter.
 - Needles: tach 36.2, fuel 37.2, temp 37.9, speedo 47.2 mm (pivot to tip). All about 2.4 → 1.8 mm wide.
 

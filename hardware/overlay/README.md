@@ -1,6 +1,6 @@
 # Replacement overlay (parametric starting point)
 
-> **v2 (2026-10-14):** the geometry is rectified, so the v1 perspective skew is removed. The method and accuracy are described in `art/README.md`. Overall about 390.4 x 125.0 mm; scale about ±0.5% from the tape. Still worth checking one hole with calipers before printing.
+> **v2 (2026-10-14):** the geometry is rectified, so the v1 perspective skew is removed. The method and accuracy are described in `art/README.md`. Overall about 392.3 x 118.8 mm (level); scale about ±0.5% from the tape. Still worth checking one hole with calipers before printing.
 
 - `overlay.scad`: OpenSCAD source. All traced polygons are embedded; parameters are at the top (Customizer-friendly).
 - `neon_overlay.stl`: the default parameters, rendered.

@@ -6,6 +6,7 @@ Built from IMG_7574–7577: the cluster with the needles removed, shot close to 
 - **Shape:** one homography was fit so that the tach (17) and speedo (16) tick tips and inner ends fall on true circles at even angular steps. The temp and fuel arcs were included as circles, and the tape lying flat beside the overlay (IMG_7568) was required to have even inch spacing. Fit error was 0.09 mm across 66 tick endpoints. Tape spacing varies 0.3% after the fit, vs 2.6% before.
   - Tach tick ring: ellipse ratio 0.948 → 0.993. Speedo: 0.971 → 0.994.
 - **Absolute scale:** from that tape, about ±0.5%. The v1 frame was 1.1% too large.
+- **Level:** the frame is rotated 2.17° CCW so the printed text is horizontal. Before, it measured 2.05–2.30° clockwise; now it reads 0.0° by projection profile. Tach and speedo sweeps are symmetric about vertical within −0.2° and +0.5°.
 - **Pivots:**
   - Tach and speedo: the fitted tick-circle centers.
   - Fuel: its five ticks meet within 0.3 px.
@@ -39,10 +40,10 @@ Built from IMG_7574–7577: the cluster with the needles removed, shot close to 
 
 | Gauge | px/mm | Image covers | pivot_px |
 |---|---|---|---|
-| Temp | 7.36 | 65.2 mm | (343.3, 276.4) |
-| Fuel | 7.48 | 64.2 mm | (348.7, 275.9) |
-| Speedo | 4.48 | 107.2 mm | (240, 240) |
-| Tach | 5.57 | 86.2 mm | (240, 240) |
+| Temp | 7.36 | 65.2 mm | (344.9, 272.5) |
+| Fuel | 7.48 | 64.2 mm | (350.0, 271.8) |
+| Speedo | 4.48 | 107.2 mm | (240.0, 240.0) |
+| Tach | 5.57 | 86.2 mm | (240.0, 240.0) |
 
 - `cluster_master_10pxmm.png`: the whole cleaned face at 10 px/mm. x_mm = u/10 − 205, y_mm = 68 − v/10.
 
@@ -61,5 +62,5 @@ Built from IMG_7574–7577: the cluster with the needles removed, shot close to 
 
 ## Remaining limits
 - Edges come from photos at about 15–17 px/mm (resampled to 10), so they're slightly soft. Trace to vector for final art if needed.
-- Areas hidden behind the trip-reset knob post (tach, lower left) are assumed blank. The odometer windows are black.
+- The tach 0 tick is rebuilt from the 1000 rpm tick rotated back two steps, because the knob post hid its end. Other areas behind the knob are assumed blank. The odometer windows are black.
 - The stock overlay holes sit very close to some ticks (tach 0, speedo 0, temp arc). That's how the stock parts are; it isn't a registration error.

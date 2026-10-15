@@ -8,3 +8,4 @@ The scripts use sandbox paths: `/home/user/workspace/scans2`, `../scans` for the
 5. clean_v2.py (masks_v2.json) → comp_v2.py (color rules) → export_v2.py
 6. needles_v2.py → needle_art_v2.py → ../mock.py, mockup_v2.py
 7. gen_overlay_v2.py --reset, gen_scad_v2.py
+8. rot.py: levels the frame (2.17° CCW, from text baselines); rerun steps 3–7 afterwards
