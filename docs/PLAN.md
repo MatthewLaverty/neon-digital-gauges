@@ -22,6 +22,7 @@ Status: Phase 0 (discovery). Prepared 2026-10-12. Rev 2: decisions log added (se
 | 2026-10-13 | Photo-derived faces/overlay found skewed (~5% on tach). Keep them as temporary assets; redo from flatbed scans later. |
 | 2026-10-14 | The cluster can't be scanned non-destructively. v2 faces and overlay rebuilt from needle-free photos with geometric rectification (section 4.2d). |
 | 2026-10-14 | Frame leveled: rotated 2.17° CCW. Printed text (RPMX1000, FUEL DOOR, MPH, km/h, TYPE AC, MI) measured 2.05–2.30° clockwise; it now reads 0.0°. Dial sweeps are within 0.5° of symmetric about vertical. Tach 0 tick rebuilt from the 1000 rpm tick (the knob post hid its end); the stop-pin mask by the 8 was tightened. |
+| 2026-10-14 | Odometer confirmed (owner): mechanical drum counter behind/below the speedo face plate, viewed through a window inside the speedo hole; trip drums in the lower-right notch. Geometry conflict with a full-size round speedo display recorded in 4.4. Option A vs B to be reconfirmed by the owner. |
 | 2026-10-14 | Color rules updated: tach numerals 7 and 8 red like the 6500+ ticks; temp H tick red and C tick km/h blue (letters white); fuel E tick red (letter white). |
 | 2026-10-13 | Face art rules: flat black background, pure white printing, tach 6500–8000 ticks and needles in the measured needle orange (RGB 232,77,61), km/h scale keeps the photographed blue (RGB 147,200,223). The tach needle is the master needle for all four gauges. |
 | 2026-10-12 | Odometer (earlier): keep stock (option A). It sits at the bottom of the cluster, with room above for the displays. The stock cluster board stays powered and keeps reading VSS on G7. Digital odometer (FRAM) dropped. |
@@ -72,7 +73,7 @@ The 1999 Neon service manual (section 8E) describes a hardwired cluster, not a b
 - Coolant gauge: fed by a dedicated temperature-gauge sender (separate pin on the sensor connector), not the PCM's coolant sensor signal.
 - Fuel gauge: fed by the tank sender, which is shared with the PCM. The manual cites roughly 50–1080 ohms across the range (confirm on your car with a meter).
 
-Open question (Phase 0 gate): what the odometer physically is (mechanical drum vs electronic) and where it sits on the speedometer face. Searches did not turn up a reliable teardown. This decides how "keep my odometer" works (see section 4.4).
+Answered 2026-10-14 (owner, from the car): the odometer is a mechanical drum counter. It sits behind and below the speedo face plate and is seen through a window inside the speedo hole. A second drum set (trip) shows through the hole's lower-right notch. Measured window positions and their effect on display size are in section 4.4. What drives the drums is still unverified.
 
 ---
 
@@ -236,19 +237,41 @@ AMOLED caveat: static gauge faces are the worst case for OLED burn-in. Mitigate 
 - Behavior: sweep the needle on boot (classic cluster check). Smooth with a simple low-pass filter; RPM arrives at 50 Hz, but temperatures arrive at 5 Hz and need interpolation. If no CAN data arrives for 500 ms, park the needle and show a fault indicator. Never freeze on a stale value.
 - Assets go into flash as C arrays through the LVGL image converter. 480x480 RGB565 is about 450 KB per face, which fits easily in 16 MB flash.
 
-### 4.4 Odometer decision — RESOLVED: option A (stock odometer kept)
+### 4.4 Odometer: mechanical drum (confirmed 2026-10-14). Option A vs B to be reconfirmed
 
-Teardown checks still needed (W0.2): (1) the odometer driver is on the cluster board that stays; (2) the odometer keeps counting with the speedometer movement unplugged or removed. If it stops, leave the movement connected and hidden behind the display; (3) the cluster's power, ignition, and ground pins stay connected; (4) clearance between the odometer window and the bottom edge of the speedo/tach displays.
+Status: the decisions log disagrees with itself. One entry (2026-10-12, "Odometer (earlier)") keeps the stock odometer (option A). A later entry the same day says a digital odometer is acceptable if the display geometry requires it, shown on the info screen. The geometry below shows the display does constrain it, so the owner needs to pick one.
 
-Original options, kept for reference:
+What it is (owner, 2026-10-14): a mechanical drum counter that sits below the speedo face plate and is seen through a window in the face.
+
+Measured positions, from the leveled v2 frame (mm; origin = speedo hole arc center, +y up; the speedo pivot is at (0.2, −1.0)):
+
+| Window | x | y | Size | Distance from speedo pivot |
+|---|---|---|---|---|
+| Odometer (6 drums, "123416" in the photo) | −16.8 to 14.5 | −34.5 to −27.9 | 31.3 x 6.6 mm | 30.9 mm (nearest corner) to 37 mm |
+| Trip (4 drums, in the hole's lower-right notch) | 36.8 to 67.5 | −35.0 to −27.5 | ≈31 x 7.5 mm | 45.5 to 75 mm |
+
+Both are photo measurements (±0.5 mm scale, about 1 mm edge uncertainty). The trip window size is read by hand because its clear lens defeated automatic edge detection. Confirm with calipers at teardown.
+
+Geometry conflict:
+- Anything opaque centered on the speedo pivot that extends more than about 30.9 mm, whether active area, bezel or PCB, covers the odometer window. That limits a centered round speedo display to about 61 mm outside diameter.
+- Filling the stock hole needs about 100 mm (tick tips at a 49.6 mm radius), and the full face image is 107.2 mm. The Waveshare 2.1" board (75 mm across) and the 2.8C (95.86 mm) would both cover the window.
+- The trip window lies outside the speedo screen frame and clears the tach screen (center x 107.1, about Ø86), so it can stay visible with any of the planned speedo displays.
+
+Options, revised with this geometry:
 
 | Option | How | Pros | Cons |
 |---|---|---|---|
-| A. Keep the stock odometer mechanism | Stock cluster PCB or odometer module stays, driven by VSS; the speedo display sits above or around it | Original mileage stays authoritative | May collide physically with a round display that covers the full speedo face |
-| B. Digital odometer on the speedo display | Hub counts VSS pulses and stores mileage in FRAM; the display renders a stock-styled odometer window | Clean packaging, includes a trip meter | You must seed it with the current mileage and protect it from corruption |
-| C. Hybrid | Odometer module relocated to a small window below the displays | Keeps the stock mechanism | Fabrication-heavy |
+| A. Keep the drums visible in place | The speedo display stays above y ≈ −27.9 mm, or has a cutout around the window. In practice that means a rectangular or notched panel behind a printed mask, or a smaller round panel mounted high | Original mileage stays authoritative; no seeding or disclosure issue | The speedo cannot fill its stock hole with a standard round panel; the lower ticks (0 and 150 mph at a 49.6 mm radius) fall beside or below the window band, so the panel shape is the hard part |
+| B. Digital odometer | The drums are hidden behind the display. The hub counts VSS and stores mileage in FRAM; odometer and trip appear on the speedo screen (`odometer_window_px` is in `faces.json`) or on the info screen | Free choice of speedo display size; matches the 2026-10-12 "digital acceptable" entry | Seed and protect the mileage; record the stock reading with photos; check odometer disclosure rules |
+| C. Relocate the drum module | The mechanical module moves to a window below the displays or near the info screen | Keeps the mechanical count and a full-size speedo | Fabrication-heavy; depends on how the drums are driven (see check 1) |
 
-Decide after the donor-cluster teardown (W0.2). If you choose B, write down and photograph the stock mileage before swapping, and look up current odometer disclosure rules for your situation.
+Teardown checks still open (W0.2):
+1. What drives the drums: a motor on the cluster board fed from VSS, or a mechanical link to the speedometer movement. This is unverified and decides whether A or C is even possible without the stock movement.
+2. Whether the drums keep counting with the speedometer movement unplugged or removed. If they stop, the movement stays connected and hidden.
+3. The cluster's power, ignition, and ground pins that the drum driver needs.
+4. Depth: how far the drum faces sit behind the face plate, and the lens-to-plate gap, for any display stacked in front.
+
+If B is chosen: write down and photograph the stock mileage before the swap, re-add the FRAM to the BOM (section 4.3), and look up current odometer disclosure rules for your situation.
 
 ### 4.5 VSS interface (hub) — rev 3
 
@@ -320,7 +343,7 @@ Hour estimates are rough guesses for a hobbyist pace, not commitments. Each phas
 - W0.2 Tear down the donor: measure each dial's visible diameter, the needle pivot location, depth available behind the faces, the lens-to-PCB gap, and the odometer type and location. Photograph everything. Record in `docs/cluster-teardown.md`.
 - W0.3 Map the cluster connector pins on your car: VSS, sender inputs, dimmer, ignition, ground, warning lamps.
 - W0.4 Confirm the VSS type and supply voltage under the Haltech harness.
-- Gate 0: choose display sizes (2.8"/2.1" vs P4 upgrade). Odometer is resolved: stock, option A. Confirm the four teardown checks in section 4.4.
+- Gate 0: choose display sizes (2.8"/2.1" vs P4 upgrade) together with the odometer option (A/B/C in section 4.4). The drum window caps a centered round speedo display at about 61 mm outside diameter unless B or C is chosen. Confirm the four teardown checks in section 4.4.
 
 ### Phase 1 — Bench proof of concept (about 10–15 h)
 - W1.1 Buy one ESP32-S3-Touch-LCD-2.1, two SN65HVD230 modules, a USB-CAN adapter, and a spare ESP32-S3 DevKit.
