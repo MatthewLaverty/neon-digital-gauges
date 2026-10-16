@@ -32,6 +32,6 @@
   " ": "",
   "-": "g"
  },
- "odo": "6 digits, no tenths, right-aligned, leading blanks",
- "trip": "999.9, DP in the gap, right-aligned in the same 6 cells"
+ "odo": "up to 6 digits, no tenths, left-aligned at the F position",
+ "trip": "up to 999.9, DP in the gap, left-aligned at the same position"
 }

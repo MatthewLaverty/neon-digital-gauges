@@ -1,8 +1,7 @@
 """7-segment LCD readout in the style of the late-90s Dodge Dakota odometer (owner reference, 2026-10-16).
 Odometer and trip share one field on the tach face, anchored where the F of the old 'FUEL DOOR' began (x=150, y 398-418
 on the 480 px tach), digit height = that lettering's height. Odometer: 6 digits, no tenths. Trip: tenths (999.9), with
-the decimal point in the inter-digit gap so both read in the same cells. Right-aligned in a 6-cell field, leading
-cells blank. Colour: the night printing orange pushed to full saturation, used day and night."""
+the decimal point in the inter-digit gap so both read in the same cells. Both are left-aligned so they start at the same point. Colour: the night printing orange pushed to full saturation, used day and night."""
 import colorsys, json, numpy as np
 from PIL import Image, ImageDraw
 P=json.load(open('art/night_palette.json'))
@@ -38,9 +37,9 @@ def render_text(text,H,ss=8):
     return np.asarray(im.resize((W,H),Image.LANCZOS)).astype(float)/255
 def field_text(kind,value):
     n=FIELD['cells']
-    if kind=='odo': s=str(int(value))[-n:].rjust(n)
+    if kind=='odo': s=str(int(value))[-n:]               # left-aligned: first digit always at the old 'F' position
     else:
-        s=f'{value%1000:.1f}'; s=s.rjust(n+1)            # 4 integer cells + tenths
+        s=f'{value%1000:.1f}'                               # up to 999.9, also starts at the 'F' position
     return s
 def draw_field(img,kind,value,rgb=ODO_RGB):
     m=render_text(field_text(kind,value),FIELD['h']); x0,y0=FIELD['x0'],FIELD['y0']; h,w=m.shape
@@ -49,5 +48,5 @@ def draw_field(img,kind,value,rgb=ODO_RGB):
 if __name__=='__main__':
     for ch in '0123456789-':
         Image.fromarray((render_text(ch,64)*255).astype(np.uint8),'L').save(f'art/glyphs/seg7/{ch if ch!="-" else "minus"}_64.png')
-    json.dump(dict(GEOM=GEOM,FIELD=FIELD,color_rgb=ODO_RGB,segments=SEG,odo='6 digits, no tenths, right-aligned, leading blanks',trip='999.9, DP in the gap, right-aligned in the same 6 cells'),open('art/glyphs/seg7/seg7.json','w'),indent=1)
+    json.dump(dict(GEOM=GEOM,FIELD=FIELD,color_rgb=ODO_RGB,segments=SEG,odo='up to 6 digits, no tenths, left-aligned at the F position',trip='up to 999.9, DP in the gap, left-aligned at the same position'),open('art/glyphs/seg7/seg7.json','w'),indent=1)
     print('ODO colour',ODO_RGB)
