@@ -7,9 +7,11 @@ F=json.load(open('art/faces/faces.json'))['gauges']['tach']; N=json.load(open('a
 TACH_RO=214.0; BOOST_RO=TACH_RO/2
 def tach_angle(rpm): return -115.6+rpm*0.02885
 face=np.asarray(Image.open('art/faces/tach_480.png').convert('RGB')).astype(float)
+RPM_LABEL=(170,149,310,174)   # RPMX1000 bbox (x0,y0,x1,y1), removed in boost mode per owner 2026-10-16
+boost_face=face.copy(); x0,y0,x1,y1=RPM_LABEL; boost_face[y0:y1,x0:x1]=0
 dial=bf.build(BOOST_RO); S=dial.shape[0]; cx,cy=F['pivot_px']
 def compose(rpm,mpa,with_boost=True):
-    img=face.copy()
+    img=(boost_face if with_boost else face).copy()
     if with_boost:
         x0=int(round(cx-S/2)); y0=int(round(cy-S/2))
         reg=img[y0:y0+S,x0:x0+S]; img[y0:y0+S,x0:x0+S]=np.maximum(reg,dial[...,None]*255)   # white print on the same black plane

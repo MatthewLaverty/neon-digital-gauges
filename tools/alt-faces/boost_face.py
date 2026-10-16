@@ -1,7 +1,7 @@
 """Boost (MPa) sub-dial for an alternate tach face, from the owner's Lamco TURBO gauge photo (IMG_7566).
 - Ticks are redrawn synthetically from measured geometry: 26 ticks, 12 deg apart (0.01 MPa), -0.10 MPa at 151.1 deg
   (clockwise from 12 o'clock) to +0.15 at 91.1 deg; majors every 0.05 MPa.
-- Labels (.05 .1 .15 -.05 -.1 TURBO MPa) are lifted from the photo (top-hat filtered), white on black.
+- Labels (.05 .1 .15 -.05 -.1 MPa; TURBO removed per owner 2026-10-16) are lifted from the photo (top-hat filtered), white on black.
 - The 0 hidden by the needle is rebuilt from the 0 of the upper '.05' and placed where the photo shows its top arc.
 - No LAMCO logo, screws, hub or bezel ring; nothing outside the tick ring."""
 import json, math, numpy as np
@@ -12,7 +12,7 @@ a=np.asarray(Image.open(SRC).convert('RGB').crop(CROP)).astype(float); g=a.min(2
 bg=ndimage.median_filter(g[::4,::4],size=25); bg=np.kron(bg,np.ones((4,4)))[:g.shape[0],:g.shape[1]]; top=g-bg
 C=np.array([722.8,717.5]); RO=561.0          # fitted dial centre and tick outer radius (photo px)
 GEOM=dict(minor_in=485/RO, major_in=452/RO, minor_w=16/RO, major_w=32/RO, a0=151.1, step=12.0, n=26, needle_len=513/RO)
-LABELS={'.05':(450,330,640,430),'.1':(860,330,960,430),'TURBO':(580,470,870,550),'.15':(1020,680,1165,775),
+LABELS={'.05':(450,330,640,430),'.1':(860,330,960,430),'.15':(1020,680,1165,775),
         'MPa':(1010,805,1160,880),'-.05':(410,1000,630,1095),'-.1':(860,1000,985,1095)}
 ZERO_SRC=(496,338,563,423); ZERO_CENTER=(333,703)
 def label_alpha(box):
