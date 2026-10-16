@@ -1,0 +1,27 @@
+{
+ "pump_bbox_px": [
+  289,
+  112,
+  338,
+  162
+ ],
+ "arrow_bbox_px": [
+  346,
+  118,
+  386,
+  156
+ ],
+ "arrow_height_ratio_to_pump": 0.75,
+ "gap_mm": 1.08,
+ "gap_px": 8.1,
+ "layer": "fuel_icon_A8.png",
+ "base": "fuel_base_480.png",
+ "low_fuel_color_rgb": [
+  255,
+  200,
+  0
+ ],
+ "low_fuel_threshold": "TBD",
+ "arrow_inside_hole": true,
+ "arrow_margin_px": 14.8
+}

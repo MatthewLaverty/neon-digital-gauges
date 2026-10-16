@@ -7,7 +7,9 @@ from PIL import Image, ImageDraw
 from scipy import ndimage
 from shapely.geometry import Polygon, Point
 FJ=json.load(open('art/faces/faces.json'))['gauges']; NJ=json.load(open('art/needles/needles.json'))
-def load(k): return np.asarray(Image.open(f'art/faces/{k}_480.png').convert('RGB')).astype(float)
+def load(k):
+    p='art/faces/source/fuel_480_stock.png' if k=='fuel' else f'art/faces/{k}_480.png'   # stock fuel art: no door arrow on the ethanol face
+    return np.asarray(Image.open(p).convert('RGB')).astype(float)
 fuel=load('fuel'); tach=load('tach')
 def glyph(img,box):  # alpha mask (0..1) from brightness, colour-independent
     x0,y0,x1,y1=box; return img[y0:y1,x0:x1].max(2)/255.0
