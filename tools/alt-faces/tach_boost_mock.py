@@ -1,0 +1,33 @@
+"""Daylight mock: boost sub-dial (half the tach tick-ring radius) concentric with the tach; shortened boost needle
+drawn beneath the tach needle so its hub hides under the tach hub."""
+import sys, json, numpy as np
+from PIL import Image, ImageDraw
+sys.path.insert(0,'tools/alt-faces'); import boost_face as bf
+F=json.load(open('art/faces/faces.json'))['gauges']['tach']; N=json.load(open('art/needles/needles.json'))['gauges']['tach']
+TACH_RO=214.0; BOOST_RO=TACH_RO/2
+def tach_angle(rpm): return -115.6+rpm*0.02885
+face=np.asarray(Image.open('art/faces/tach_480.png').convert('RGB')).astype(float)
+dial=bf.build(BOOST_RO); S=dial.shape[0]; cx,cy=F['pivot_px']
+def compose(rpm,mpa,with_boost=True):
+    img=face.copy()
+    if with_boost:
+        x0=int(round(cx-S/2)); y0=int(round(cy-S/2))
+        reg=img[y0:y0+S,x0:x0+S]; img[y0:y0+S,x0:x0+S]=np.maximum(reg,dial[...,None]*255)   # white print on the same black plane
+    im=Image.fromarray(img.astype(np.uint8)).convert('RGBA')
+    nd=Image.open(f"art/needles/{N['needle_png']}").convert('RGBA'); px,py=N['pivot_px']
+    def put(ndl,pv,ang):
+        W=int(2*max(ndl.size)+4); cv=Image.new('RGBA',(W,W)); cv.paste(ndl,(int(W/2-pv[0]),int(W/2-pv[1])))
+        cv=cv.rotate(-ang,resample=Image.BICUBIC,center=(W/2,W/2)); im.alpha_composite(cv,(int(cx-W/2),int(cy-W/2)))
+    if with_boost:
+        k=bf.GEOM['needle_len']*BOOST_RO/(N['size_px'][1]-(N['size_px'][1]-py))   # boost needle length / tach needle length
+        bn=nd.resize((max(3,round(nd.width*k)),round(nd.height*k)),Image.LANCZOS)
+        put(bn,(px*k,py*k),bf.angle_for(mpa))
+    put(nd,(px,py),tach_angle(rpm))
+    hub=Image.open(f"art/needles/{N['hub_png']}").convert('RGBA'); im.alpha_composite(hub,(int(cx-hub.width/2),int(cy-hub.height/2)))
+    return im.convert('RGB')
+if __name__=='__main__':
+    cases=[('stock tach, 3000 rpm',3000,0,False),('idle: 850 rpm, -0.06 MPa',850,-0.06,True),('pull: 5500 rpm, +0.10 MPa',5500,0.10,True)]
+    out=Image.new('RGB',(3*490-10,480+34),(30,30,30)); d=ImageDraw.Draw(out)
+    for i,(t,r,b,w) in enumerate(cases):
+        out.paste(compose(r,b,w),(i*490,34)); d.text((i*490+6,10),t,fill=(220,220,220))
+    out.save('art/preview/tach_boost_preview.png'); compose(5500,0.10).save('art/preview/tach_boost_480.png'); print('ok')

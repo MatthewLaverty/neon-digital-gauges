@@ -1,0 +1,17 @@
+{
+ "minor_in": 0.8645276292335116,
+ "major_in": 0.8057040998217468,
+ "minor_w": 0.0285204991087344,
+ "major_w": 0.0570409982174688,
+ "a0": 151.1,
+ "step": 12.0,
+ "n": 26,
+ "needle_len": 0.9144385026737968,
+ "units": "MPa gauge",
+ "range": [
+  -0.1,
+  0.15
+ ],
+ "source": "art/boost/ref_IMG_7566.jpg",
+ "note": "angles clockwise from 12 o'clock; radii as fraction of tick outer radius"
+}
