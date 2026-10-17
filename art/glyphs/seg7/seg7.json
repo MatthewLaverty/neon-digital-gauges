@@ -13,6 +13,20 @@
   "h": 24,
   "cells": 6
  },
+ "LEGEND": {
+  "font": "/usr/share/fonts/truetype/roboto/unhinted/RobotoTTF/Roboto-Regular.ttf",
+  "cap_ratio": 0.47,
+  "gap_ratio": 0.24,
+  "rgb": [
+   250,
+   100,
+   20
+  ],
+  "text": {
+   "odo": "ODO",
+   "trip": "TRIP"
+  }
+ },
  "color_rgb": [
   255,
   89,
