@@ -21,7 +21,13 @@
   200,
   0
  ],
- "low_fuel_threshold": "TBD",
+ "low_fuel_threshold": {
+  "gal": 1.6,
+  "litres": 6.06,
+  "can_0x3E2_raw_0p1L": 61,
+  "rule": "on when fuel remaining < 1.6 gal (owner 2026-10-16), from Haltech 0x3E2 fuel level (0.1 L)",
+  "proposed_filter": "PROPOSED: on after 10 s continuously below; off above 1.8 gal (slosh hysteresis), tune in the car"
+ },
  "arrow_inside_hole": true,
  "arrow_margin_px": 14.8
 }

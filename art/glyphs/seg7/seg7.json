@@ -47,5 +47,5 @@
   "-": "g"
  },
  "odo": "up to 6 digits, no tenths, centred under RPMX1000",
- "trip": "up to 999.9, DP in the gap, centred under RPMX1000"
+ "trip": "0.0-9999.9 then wraps to 0.0, DP in the gap, centred under RPMX1000"
 }

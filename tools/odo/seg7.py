@@ -39,7 +39,7 @@ def field_text(kind,value):
     n=FIELD['cells']
     if kind=='odo': s=str(int(value))[-n:]               # centred under RPMX1000
     else:
-        s=f'{value%1000:.1f}'                               # up to 999.9, centred the same way
+        s=f'{value%10000:.1f}'                              # 0.0-9999.9, wraps to 0.0 (owner 2026-10-16), centred the same way
     return s
 # Legend ('ODO' / 'TRIP') in the Toyota LCD style (owner reference, 2026-10-16). Typeface: Roboto Regular, the closest
 # installed match to the traced Toyota 'ODO' legend (tools/odo/legend_extract.py; width ratio 1.01, ink ratio 1.00, IoU 0.78).
@@ -73,5 +73,5 @@ if __name__=='__main__':
     for k,wd in LEGEND['text'].items():
         c=LEGEND['cap_px']; Image.fromarray((render_legend(wd,c)*255).astype(np.uint8),'L').save(f'art/glyphs/seg7/legend_{wd}.png')
         Image.fromarray((render_legend(wd,64)*255).astype(np.uint8),'L').save(f'art/glyphs/seg7/legend_{wd}_64.png')
-    json.dump(dict(GEOM=GEOM,FIELD=FIELD,LEGEND=LEGEND,color_rgb=ODO_RGB,segments=SEG,odo='up to 6 digits, no tenths, centred under RPMX1000',trip='up to 999.9, DP in the gap, centred under RPMX1000'),open('art/glyphs/seg7/seg7.json','w'),indent=1)
+    json.dump(dict(GEOM=GEOM,FIELD=FIELD,LEGEND=LEGEND,color_rgb=ODO_RGB,segments=SEG,odo='up to 6 digits, no tenths, centred under RPMX1000',trip='0.0-9999.9 then wraps to 0.0, DP in the gap, centred under RPMX1000'),open('art/glyphs/seg7/seg7.json','w'),indent=1)
     print('ODO colour',ODO_RGB)

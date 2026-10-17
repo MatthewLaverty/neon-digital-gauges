@@ -30,8 +30,8 @@ def needle_img(path,night):
     if not night: return nd
     a=np.asarray(nd).astype(float); lum=a[...,:3].max(2)/232.0
     a[...,:3]=np.clip(lum[...,None],0,1)*C['needles']; return Image.fromarray(a.astype(np.uint8),'RGBA')
-def compose(k,angle,night):
-    g=F[k]; n=N['gauges'][k]; face=np.asarray(Image.open(f'art/faces/{k}_480.png').convert('RGB'))
+def compose(k,angle,night,face_png=None):
+    g=F[k]; n=N['gauges'][k]; face=np.asarray(Image.open(face_png or f'art/faces/{k}_480.png').convert('RGB'))
     img=face.astype(float)
     if night:
         img=night_face(face); hc=C[H['color']]

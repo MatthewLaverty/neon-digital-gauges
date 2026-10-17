@@ -1,5 +1,6 @@
-"""Bench PoC wiring diagram (rev 2026-10-15): PC + USB-CAN adapter as fake Haltech; hub (ESP32-S3-DevKitC-1) with
-4x4 membrane keypad, dimmer pot, headlamp switch and VSS loopback; Blink PKP-2300-SI on CAN; 2.8C tach at the far end."""
+"""Bench PoC wiring diagram (rev 2026-10-16): PC + USB-CAN adapter as fake Haltech; hub (ESP32-S3-DevKitC-1) with
+4x4 membrane keypad (all keys, owner 2026-10-16), dimmer pot, headlamp switch; Blink PKP-2300-SI deferred (optional);
+no VSS loopback: speed and distance now come from the Haltech (0x370, 0x6F6); 2.8C tach at the far end."""
 import matplotlib; matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch
@@ -17,7 +18,7 @@ def wire(pts,c,lw=2.2,ls='-'):
 def dot(x,y,c): ax.plot(x,y,'o',c=c,ms=5.5,zorder=3)
 def lab(x,y,t,c='#333',**k):
     k.setdefault('fontsize',8.2); ax.text(x,y,t,color=c,zorder=4,**k)
-ax.text(90,124,'Neon gauges: bench proof-of-concept wiring (rev 2026-10-15)',ha='center',va='top',fontsize=14,weight='bold')
+ax.text(90,124,'Neon gauges: bench proof-of-concept wiring (rev 2026-10-16)',ha='center',va='top',fontsize=14,weight='bold')
 ax.text(90,120.3,'CAN bus at 1 Mbit/s. Terminate ONLY the two ends (USB-CAN adapter and CAN board #2). With power off, expect about 60 ohm between CAN H and CAN L.',ha='center',va='top',fontsize=9.5)
 # CAN trunk
 YH,YL,YG=48,44,40; X0,X1=21,172
@@ -32,8 +33,8 @@ wire([(8,87.3),(8,114.5),(50,114.5),(50,110.2)],C['usb'],3); lab(10,115.2,'USB-C
 # hub
 top=box(28,70,50,'HUB: ESP32-S3-DevKitC-1 N16R8',(
  'GPIO4   TWAI TX -> CAN board #1 CTX','GPIO5   TWAI RX <- CAN board #1 CRX','3V3,GND         -> CAN board #1',
- 'GPIO1   ADC     <- dimmer pot wiper','GPIO2   input   <- headlamp switch','GPIO6   PWM out -> jumper -> GPIO7',
- 'GPIO7   PCNT in <- fake VSS pulses','GPIO8-11  -> keypad rows R1-R4','GPIO12-15 <- keypad cols C1-C4','           (internal pull-ups)'),'#eef7ee')
+ 'GPIO1   ADC     <- dimmer pot wiper','GPIO2   input   <- headlamp switch','GPIO6,7  free (no VSS: speed and',
+ '         distance come from the Haltech)','GPIO8-11  -> keypad rows R1-R4','GPIO12-15 <- keypad cols C1-C4','           (internal pull-ups)'),'#eef7ee')
 # CAN board 1
 box(32,52,26,'CAN board #1',('SN65HVD230, 3.3 V','mid-bus: NO 120R'),'#fff8e1')
 for x,c,t in ((36,'v3','3V3'),(41,'sig','CTX'),(46,'sig','CRX'),(51,'g','GND')):
@@ -42,9 +43,8 @@ for x,y,c in ((38,YH,'h'),(44,YL,'l'),(50,YG,'g')): wire([(x,52),(x,y)],C[c],2.6
 # hub peripherals
 yb=box(84,92.5,28,'Dimmer pot, 10k linear',('end A  -> 3V3','wiper  -> GPIO1','end B  -> GND'),'#fdf0f0')
 box(84,75,28,'Headlamp switch',('toggle or jumper','GPIO2 -> switch -> GND','closed = lights on'),'#fdf0f0')
-box(84,63,28,'VSS loopback',('jumper GPIO6 -> GPIO7',),'#fdf0f0')
-wire([(78,101),(84,101)],C['sig'],2); wire([(78,83.5),(84,83.5)],C['sig'],2); wire([(78,71.5),(81,71.5),(81,67.5),(84,67.5)],C['sig'],2)
-mtop=box(118,74,34,'4x4 membrane keypad',('DIYables, ribbon L to R:','R1 R2 R3 R4 C1 C2 C3 C4',' 8  9 10 11 12 13 14 15  <- GPIO','(8 Dupont M-F jumpers)','key map (= Blink keys 1-4):','1  temp: coolant / oil','2  fuel: level / ethanol','3  overlay (AFR later)','A  tap ODO/TRIP, hold: reset','rest spare'),'#f3eefa')
+wire([(78,101),(84,101)],C['sig'],2); wire([(78,83.5),(84,83.5)],C['sig'],2)
+mtop=box(118,74,34,'4x4 membrane keypad',('DIYables, ribbon L to R:','R1 R2 R3 R4 C1 C2 C3 C4',' 8  9 10 11 12 13 14 15  <- GPIO','(8 Dupont M-F jumpers)','key map (membrane only for now):','1  temp: coolant / oil','2  fuel: level / ethanol','3  speedo alt face (TBD)','A  tap ODO/TRIP, hold: reset','B  tach: rpm / boost'),'#f3eefa')
 wire([(72,110.2),(72,112.3),(135,112.3),(135,mtop)],C['sig'],2.4)
 # tach
 ttop=box(154,62,28,'TACH: Waveshare 2.8C',('ESP32-S3, 480x480','SH1.0 UART header:','TXD GPIO43 -> CTX','RXD GPIO44 <- CRX','3V3, GND'),'#eef7ee')
@@ -53,7 +53,7 @@ box(155,50.5,22,'CAN board #2',(),'#fff8e1'); lab(156,51.3,'SN65HVD230, END: 120
 for x,c,t in ((158,'v3','3V3'),(163,'sig','CTX'),(168,'sig','CRX'),(173,'g','GND')): wire([(x,62),(x,57.3)],C[c],2); lab(x+0.4,58.6,t,C[c],fontsize=7.2)
 for x,y,c in ((160,YH,'h'),(165,YL,'l'),(170,YG,'g')): wire([(x,50.5),(x,y)],C[c],2.6); dot(x,y,C[c])
 # Blink keypad
-btop=box(62,1,46,'Blink PKP-2300-SI CAN keypad',('AT04-4P socket, mate AT06-4S plug:','pin 1  blue   CAN L','pin 2  white  CAN H','pin 3  black  GND (battery -)','pin 4  red    +12 to 24 V',
+btop=box(62,1,46,'Blink PKP-2300-SI (DEFERRED, optional)',('AT04-4P socket, mate AT06-4S plug:','pin 1  blue   CAN L','pin 2  white  CAN H','pin 3  black  GND (battery -)','pin 4  red    +12 to 24 V',
  'Set up first, alone on the adapter:',' bit rate 1 Mbit/s (object 2010h)',' default 125 kbit/s, node 15h',' key PDO 195h, LED 215h (node 15h)'),'#f3eefa')
 for x,y,c in ((76,YH,'h'),(82,YL,'l'),(88,YG,'g')): wire([(x,btop),(x,y)],C[c],2.6); dot(x,y,C[c])
 box(114,12,26,'12 V bench supply',('+12 V -> pin 4','GND -> pin 3 AND','bus GND'),'#fff1e0')
