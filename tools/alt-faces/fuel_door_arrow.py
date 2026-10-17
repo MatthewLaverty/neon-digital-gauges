@@ -30,6 +30,6 @@ g=FJ['fuel']; S=json.load(open('hardware/overlay/overlay_mm.json'))['shapes']
 hole=Polygon([((x-g['image_center_mm'][0])*g['px_per_mm']+240,240-(y-g['image_center_mm'][1])*g['px_per_mm']) for x,y in S['fuel']])
 ab=box(ax0,ay0,ax0+W,ay0+H)
 info=dict(pump_bbox_px=PUMP,arrow_bbox_px=[ax0,ay0,ax0+W,ay0+H],arrow_height_ratio_to_pump=0.75,gap_mm=round(gap_mm,2),gap_px=round(gap_px,1),
-          layer='fuel_icon_A8.png',base='fuel_base_480.png',low_fuel_color_rgb=[255,200,0],low_fuel_threshold=dict(gal=1.6,litres=6.06,can_0x3E2_raw_0p1L=61,rule='on when fuel remaining < 1.6 gal (owner 2026-10-16), from Haltech 0x3E2 fuel level (0.1 L)',proposed_filter='PROPOSED: on after 10 s continuously below; off above 1.8 gal (slosh hysteresis), tune in the car'),
+          layer='fuel_icon_A8.png',base='fuel_base_480.png',low_fuel_color_rgb=[255,200,0],low_fuel_threshold=dict(gal=1.6,litres=6.06,can_0x3E2_raw_0p1L=61,rule='on when fuel remaining < 1.6 gal (owner 2026-10-16), from Haltech 0x3E2 fuel level (0.1 L)',on_below_gal=1.6,on_delay_s=10,off_above_gal=1.8,can_0x3E2_raw_off_0p1L=68,filter='owner 2026-10-16: on after 10 s continuously below 1.6 gal; off when above 1.8 gal (hysteresis); any reading at or above 1.6 gal restarts the 10 s timer'),
           arrow_inside_hole=bool(hole.contains(ab)),arrow_margin_px=round(hole.exterior.distance(ab),1))
 json.dump(info,open('art/faces/fuel_icon.json','w'),indent=1); print(info)

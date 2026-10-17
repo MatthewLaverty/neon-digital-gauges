@@ -26,7 +26,11 @@
   "litres": 6.06,
   "can_0x3E2_raw_0p1L": 61,
   "rule": "on when fuel remaining < 1.6 gal (owner 2026-10-16), from Haltech 0x3E2 fuel level (0.1 L)",
-  "proposed_filter": "PROPOSED: on after 10 s continuously below; off above 1.8 gal (slosh hysteresis), tune in the car"
+  "on_below_gal": 1.6,
+  "on_delay_s": 10,
+  "off_above_gal": 1.8,
+  "can_0x3E2_raw_off_0p1L": 68,
+  "filter": "owner 2026-10-16: on after 10 s continuously below 1.6 gal; off when above 1.8 gal (hysteresis); any reading at or above 1.6 gal restarts the 10 s timer"
  },
  "arrow_inside_hole": true,
  "arrow_margin_px": 14.8
