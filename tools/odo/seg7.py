@@ -43,31 +43,35 @@ def field_text(kind,value):
     return s
 # Legend ('ODO' / 'TRIP') in the Toyota LCD style (owner reference, 2026-10-16). Typeface: Roboto Regular, the closest
 # installed match to the traced Toyota 'ODO' legend (tools/odo/legend_extract.py; width ratio 1.01, ink ratio 1.00, IoU 0.78).
-# Cap height 0.47 x digit height and gap 0.24 x digit height, both measured off the Toyota ODO frame. Centred on the readout.
-# Colour: the gauge-light (night printing) orange, day and night.
-LEGEND=dict(font='/usr/share/fonts/truetype/roboto/unhinted/RobotoTTF/Roboto-Regular.ttf',cap_ratio=0.47,gap_ratio=0.24,
+# Cap height 13 px (owner, 2026-10-16: Regular enlarged rather than Medium; Toyota proportion would be 11 px), rendered
+# directly at 1x with FreeType hinting so the vertical stems snap to whole pixel columns. Gap 6 px (0.24 x digit height,
+# Toyota ODO frame). Centred on the readout. Colour: the gauge-light (night printing) orange, day and night.
+LEGEND=dict(font='/usr/share/fonts/truetype/roboto/unhinted/RobotoTTF/Roboto-Regular.ttf',cap_px=13,gap_px=6,
             rgb=list(P['printing_orange']),text={'odo':'ODO','trip':'TRIP'})
-def render_legend(word,cap,ss=8):
+def render_legend(word,cap):
     from PIL import ImageFont
-    ft=ImageFont.truetype(LEGEND['font'],100*ss); top,bot=ft.getbbox('H')[1],ft.getbbox('H')[3]  # shared cap line + baseline
-    l,_,r,_=ft.getbbox(word); im=Image.new('L',(r-l+4*ss,bot-top),0)
-    ImageDraw.Draw(im).text((-l+2*ss,-top),word,font=ft,fill=255)
-    W=max(1,round(im.width*cap/im.height)); m=np.asarray(im.resize((W,cap),Image.LANCZOS)).astype(float)/255
-    xs=np.where(m.max(0)>0.02)[0]; return m[:,xs.min():xs.max()+1]
+    def draw(sz):
+        ft=ImageFont.truetype(LEGEND['font'],sz); im=Image.new('L',(sz*len(word)+20,sz*2),0)
+        ImageDraw.Draw(im).text((4,4),word,font=ft,fill=255); return np.asarray(im).astype(float)/255
+    for sz in range(4,400):                       # smallest point size whose hinted caps are exactly `cap` px
+        m=draw(sz); ys=np.where(m.max(1)>0.5)[0]
+        if ys.max()-ys.min()+1>=cap: break
+    ys=np.where(m.max(1)>0.02)[0]; xs=np.where(m.max(0)>0.02)[0]
+    return m[ys.min():ys.max()+1,xs.min():xs.max()+1]
 def _blend(img,m,x0,y0,rgb):
     h,w=m.shape; reg=img[y0:y0+h,x0:x0+w]; img[y0:y0+h,x0:x0+w]=reg*(1-m[...,None])+m[...,None]*np.array(rgb,float)
 def draw_field(img,kind,value,rgb=ODO_RGB,legend=True):
     m=render_text(field_text(kind,value),FIELD['h']); h,w=m.shape
     x0=int(round(FIELD['xc']-w/2)); y0=int(round(FIELD['yc']-h/2)); _blend(img,m,x0,y0,rgb)
     if legend:
-        cap=round(LEGEND['cap_ratio']*FIELD['h']); gap=round(LEGEND['gap_ratio']*FIELD['h'])
-        lm=render_legend(LEGEND['text'][kind],cap); _blend(img,lm,int(round(FIELD['xc']-lm.shape[1]/2)),y0-gap-cap,LEGEND['rgb'])
+        cap=LEGEND['cap_px']; gap=LEGEND['gap_px']
+        lm=render_legend(LEGEND['text'][kind],cap); _blend(img,lm,int(round(FIELD['xc']-lm.shape[1]/2)),y0-gap-lm.shape[0],LEGEND['rgb'])
     return img
 if __name__=='__main__':
     for ch in '0123456789-':
         Image.fromarray((render_text(ch,64)*255).astype(np.uint8),'L').save(f'art/glyphs/seg7/{ch if ch!="-" else "minus"}_64.png')
     for k,wd in LEGEND['text'].items():
-        c=round(LEGEND['cap_ratio']*FIELD['h']); Image.fromarray((render_legend(wd,c)*255).astype(np.uint8),'L').save(f'art/glyphs/seg7/legend_{wd}.png')
+        c=LEGEND['cap_px']; Image.fromarray((render_legend(wd,c)*255).astype(np.uint8),'L').save(f'art/glyphs/seg7/legend_{wd}.png')
         Image.fromarray((render_legend(wd,64)*255).astype(np.uint8),'L').save(f'art/glyphs/seg7/legend_{wd}_64.png')
     json.dump(dict(GEOM=GEOM,FIELD=FIELD,LEGEND=LEGEND,color_rgb=ODO_RGB,segments=SEG,odo='up to 6 digits, no tenths, centred under RPMX1000',trip='up to 999.9, DP in the gap, centred under RPMX1000'),open('art/glyphs/seg7/seg7.json','w'),indent=1)
     print('ODO colour',ODO_RGB)

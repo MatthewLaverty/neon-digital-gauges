@@ -15,8 +15,8 @@
  },
  "LEGEND": {
   "font": "/usr/share/fonts/truetype/roboto/unhinted/RobotoTTF/Roboto-Regular.ttf",
-  "cap_ratio": 0.47,
-  "gap_ratio": 0.24,
+  "cap_px": 13,
+  "gap_px": 6,
   "rgb": [
    250,
    100,
