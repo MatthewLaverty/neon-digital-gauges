@@ -8,7 +8,7 @@ P=json.load(open('art/night_palette.json'))
 h,s,v=colorsys.rgb_to_hsv(*[c/255 for c in P['printing_orange']])
 ODO_RGB=[round(c*255) for c in colorsys.hsv_to_rgb(h,1.0,1.0)]
 GEOM=dict(w=0.62,t=0.19,g=0.012,pitch=0.78,dp=0.16,tip=0.0)   # upright, no slant; bold segments like the Dakota       # in digit heights
-FIELD=dict(x0=150,y0=398,h=21,cells=6)                     # tach 480 px coordinates
+FIELD=dict(xc=240,yc=408,h=24,cells=6)   # tach 480 px: centred directly under RPMX1000 (x 173-307, centre 240); 21 px FUEL DOOR height +15 %
 SEG={'0':'abcdef','1':'bc','2':'abged','3':'abgcd','4':'fgbc','5':'afgcd','6':'afgedc','7':'abc','8':'abcdefg','9':'abcdfg',' ':'','-':'g'}
 def seg_polys(w,t,g):
     d=GEOM['tip']*t/2          # tip truncation: flat bar ends with 45-degree chamfers, keeps the inter-segment gaps
@@ -37,16 +37,17 @@ def render_text(text,H,ss=8):
     return np.asarray(im.resize((W,H),Image.LANCZOS)).astype(float)/255
 def field_text(kind,value):
     n=FIELD['cells']
-    if kind=='odo': s=str(int(value))[-n:]               # left-aligned: first digit always at the old 'F' position
+    if kind=='odo': s=str(int(value))[-n:]               # centred under RPMX1000
     else:
-        s=f'{value%1000:.1f}'                               # up to 999.9, also starts at the 'F' position
+        s=f'{value%1000:.1f}'                               # up to 999.9, centred the same way
     return s
 def draw_field(img,kind,value,rgb=ODO_RGB):
-    m=render_text(field_text(kind,value),FIELD['h']); x0,y0=FIELD['x0'],FIELD['y0']; h,w=m.shape
+    m=render_text(field_text(kind,value),FIELD['h']); h,w=m.shape
+    x0=int(round(FIELD['xc']-w/2)); y0=int(round(FIELD['yc']-h/2))
     reg=img[y0:y0+h,x0:x0+w]; img[y0:y0+h,x0:x0+w]=reg*(1-m[...,None])+m[...,None]*np.array(rgb,float)
     return img
 if __name__=='__main__':
     for ch in '0123456789-':
         Image.fromarray((render_text(ch,64)*255).astype(np.uint8),'L').save(f'art/glyphs/seg7/{ch if ch!="-" else "minus"}_64.png')
-    json.dump(dict(GEOM=GEOM,FIELD=FIELD,color_rgb=ODO_RGB,segments=SEG,odo='up to 6 digits, no tenths, left-aligned at the F position',trip='up to 999.9, DP in the gap, left-aligned at the same position'),open('art/glyphs/seg7/seg7.json','w'),indent=1)
+    json.dump(dict(GEOM=GEOM,FIELD=FIELD,color_rgb=ODO_RGB,segments=SEG,odo='up to 6 digits, no tenths, centred under RPMX1000',trip='up to 999.9, DP in the gap, centred under RPMX1000'),open('art/glyphs/seg7/seg7.json','w'),indent=1)
     print('ODO colour',ODO_RGB)

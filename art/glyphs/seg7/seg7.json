@@ -8,9 +8,9 @@
   "tip": 0.0
  },
  "FIELD": {
-  "x0": 150,
-  "y0": 398,
-  "h": 21,
+  "xc": 240,
+  "yc": 408,
+  "h": 24,
   "cells": 6
  },
  "color_rgb": [
@@ -32,6 +32,6 @@
   " ": "",
   "-": "g"
  },
- "odo": "up to 6 digits, no tenths, left-aligned at the F position",
- "trip": "up to 999.9, DP in the gap, left-aligned at the same position"
+ "odo": "up to 6 digits, no tenths, centred under RPMX1000",
+ "trip": "up to 999.9, DP in the gap, centred under RPMX1000"
 }
