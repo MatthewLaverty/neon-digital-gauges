@@ -33,7 +33,7 @@ Transmitted by the hub only. Supersedes the earlier 0x6A0 layout (speed from VSS
 | Byte | Field | Scaling |
 |---|---|---|
 | 0 | Event | 1 = tap, 2 = hold (2 s) |
-| 1 | Gauge | 0 temp, 1 fuel, 2 tach, 3 speedo |
+| 1 | Stop | 0 temp, 1 fuel, 2 tach, 3 ODO/TRIP, 4 speedo |
 | 2 | Sequence | increments per event, so the hub ignores duplicates |
 
 0x6A1, 10 Hz and on change: gauge states. The speedo data face takes its four values straight from the Haltech frames above (owner, 2026-10-17); the hub only sends which face is shown and the order.
