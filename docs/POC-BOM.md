@@ -19,11 +19,19 @@ Estimated total: about $340–420, depending mainly on where the keypad comes fr
 
 Tools: the AT contacts are solid size-16 crimp contacts; Amphenol's datasheet lists the CA-5D12 hand crimper (https://static.chipdip.ru/lib/144/DOC048144005.pdf).
 
-Bring-up order:
+Bring-up order (revised 2026-10-17: membrane keypad for the proof of concept; the Blink is deferred and the knob comes later):
 1. PC -> CANable -> hub + tach at 1 Mbit/s; run `tools/bench/fake_haltech.py`.
-2. Keypad alone on the CANable: change its bit rate from the default 125 kbit/s to 1 Mbit/s (object 2010h) and pick a node ID.
-3. Put the keypad on the 1 Mbit/s bench bus; the hub reads key presses, drives the key LEDs, and broadcasts gauge modes in 0x6A1.
+2. Membrane keypad on hub GPIO8-15; the hub reads the keys (1 temp, 2 fuel, 3 speedo data face, A trip, B boost) and broadcasts gauge states in 0x6A1 and odometer/trip in 0x6A0.
 
-Bus: CANable -> twisted pair -> hub transceiver -> keypad -> tach transceiver. Terminate only the two ends; check about 60 ohm between CAN H and L with the power off.
+Bus: CANable -> twisted pair -> hub transceiver -> tach transceiver. Terminate only the two ends; check about 60 ohm between CAN H and L with the power off.
 
 Optional swap: use the Waveshare ESP32-P4 3.4C speedo board ($64.99, https://www.waveshare.com/esp32-p4-wifi6-touch-lcd-3.4c.htm) instead of the tach to prove the ESP32-P4 path first.
+
+## Later phase: knob selector (ordered 2026-10-17)
+The final selection device is the CrowPanel 1.28" HMI ESP32 rotary display (Meshnology L003045 on Amazon, $38.69), integrated after the keypad proof of concept. Still needed for it:
+| Part | Qty | Purpose |
+|---|---|---|
+| SN65HVD230 3.3 V CAN transceiver board | 1 more | Knob on the CAN bus (I2C connector GPIO38/39 as TWAI TX/RX; verify pinout with a meter) |
+| 12 V to 5 V buck, 1 A or more | 1 | Knob power (5 V / 1 A per Elecrow) |
+| 3.3 V supply for the transceiver (e.g. a small 5 V to 3.3 V LDO board) | 1 | The knob's connectors carry 5 V, not 3.3 V |
+| 1.25 mm 4-pin cable | 1 | Knob I2C connector to the transceiver |
