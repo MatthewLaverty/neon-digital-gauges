@@ -118,5 +118,5 @@
   "speed",
   "volts"
  ],
- "controls": "key 3: tap = stock speedo / data face; hold 2 s on the data face = rotate up one step (top goes to the bottom); order saved in hub NVS"
+ "controls": "key 3: tap = stock speedo / data face; hold 2 s on the data face = rotate up one step (top goes to the bottom); hold 2 s on the stock face = nothing (owner 2026-10-17); order saved in hub NVS"
 }

@@ -95,7 +95,7 @@ if __name__=='__main__':
         fonts=dict(title='Roboto Regular',value='Roboto Bold'),layout=lay,night_ring_px=RING,
         colours=dict(day=dict(fg=[0,0,0],bg=[255,255,255]),night=dict(fg=P['printing_orange'],bg=[0,0,0])),
         items=ITEMS,default_order=[i['key'] for i in ITEMS],
-        controls='key 3: tap = stock speedo / data face; hold 2 s on the data face = rotate up one step (top goes to the bottom); order saved in hub NVS'),
+        controls='key 3: tap = stock speedo / data face; hold 2 s on the data face = rotate up one step (top goes to the bottom); hold 2 s on the stock face = nothing (owner 2026-10-17); order saved in hub NVS'),
         open('art/faces/speedo_data.json','w'),indent=1)
     vals=dict(air=14.7,oil=52,speed=123,volts=14.1); order=[i['key'] for i in ITEMS]
     states=[order]; 
