@@ -29,6 +29,13 @@ Transmitted by the hub only. Supersedes the earlier 0x6A0 layout (speed from VSS
 | 0-3 | Odometer | u32, 0.1 mi (shown without tenths) |
 | 4-7 | Trip | u32, 0.1 mi, 0.0-9999.9 then wraps to 0 |
 
+0x6A2, on event (PROPOSED, 2026-10-17): knob selector intents, transmitted by the knob only. The hub applies them exactly like keypad presses and answers with 0x6A1.
+| Byte | Field | Scaling |
+|---|---|---|
+| 0 | Event | 1 = tap, 2 = hold (2 s) |
+| 1 | Gauge | 0 temp, 1 fuel, 2 tach, 3 speedo |
+| 2 | Sequence | increments per event, so the hub ignores duplicates |
+
 0x6A1, 10 Hz and on change: gauge states. The speedo data face takes its four values straight from the Haltech frames above (owner, 2026-10-17); the hub only sends which face is shown and the order.
 | Byte | Field | Scaling |
 |---|---|---|
