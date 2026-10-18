@@ -5,7 +5,7 @@ Goal: a hub, one gauge board (the 2.8" tach) and the control keypad, all running
 | Item | Qty | Approx. price | Link | Why |
 |---|---|---|---|---|
 | CANable 2.0 USB-to-CAN adapter (Makerbase) | 1 | $17 | https://makerbase3d.com/product/makerbase-canable-v2/ | PC stands in for the Haltech; later sniffs the real bus and sets up the keypad |
-| Waveshare SN65HVD230 CAN board (3.3 V) | 2 (+1 spare) | $5 each | https://www.waveshare.com/sn65hvd230-can-board.htm | CAN transceiver for the hub and the tach |
+| Waveshare SN65HVD230 CAN board (3.3 V) | 2 (+1 spare) | $5 each | https://www.waveshare.com/sn65hvd230-can-board.htm | CAN transceiver for the hub and the tach. Owner has 1 (2026-10-17): needs 1 more before the bench bus can run hub + tach |
 | ESP32-S3-DevKitC-1 N16R8 | 1 | $10–15 single, $16–21 2-pack | https://www.amazon.com/DIYmall-ESP32-S3-DevKitC-1-N8R8-Development-ESP32-S3-WROOM-1-Module/dp/B0BSCXHB5S | The hub |
 | Waveshare ESP32-S3-LCD-2.8C (non-touch is fine) | 1 | $33–40 | https://www.waveshare.com/esp32-s3-touch-lcd-2.8c.htm | The tach board (includes SH1.0 cables) |
 | Blink Marine PKP-2300-SI 6-key CAN keypad | 1 | 204 EUR + VAT/shipping direct (https://shop.blinkmarine.com/product/pkp-2300-si/); $294.99 from a US dealer (https://www.murcal.com/PowerKey-PRO-PKP-2300-SI-Compact-Keypad) | see price | Gauge mode, overlay and trip-reset keys; replaces the stock stalk |

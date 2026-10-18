@@ -162,7 +162,7 @@ Check the Nexus S2 manual for available AVI/DPI counts and pull-up options. This
  12 V switched ─► fuse ─► protection ─► 5 V automotive buck ─► all five boards
 ```
 
-Each display is an ESP32-S3 board with its own 3.3 V CAN transceiver, running in listen-only mode so it can never disturb the ECU bus. The hub is the only device besides the Haltech that transmits. It keeps the odometer and trip (from Haltech Trip Meter 1), reads the keypad, headlamp switch and dimmer, and broadcasts 0x6A0 (odometer, trip) and 0x6A1 (gauge states, brightness, lighting); see `docs/CAN-MAP.md`. Speed goes straight from the Haltech (0x370) to the speedo (revised 2026-10-16; earlier the hub read the VSS).
+Each display is an ESP32-S3 board with its own 3.3 V CAN transceiver, running in listen-only mode so it can never disturb the ECU bus. The hub (and, later, the knob selector, which sends 0x6A2) are the only devices besides the Haltech that transmit. It keeps the odometer and trip (from Haltech Trip Meter 1), reads the keypad, headlamp switch and dimmer, and broadcasts 0x6A0 (odometer, trip) and 0x6A1 (gauge states, brightness, lighting); see `docs/CAN-MAP.md`. Speed goes straight from the Haltech (0x370) to the speedo (revised 2026-10-16; earlier the hub read the VSS).
 
 Why this layout:
 
