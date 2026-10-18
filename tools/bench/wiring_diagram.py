@@ -44,7 +44,7 @@ for x,y,c in ((38,YH,'h'),(44,YL,'l'),(50,YG,'g')): wire([(x,52),(x,y)],C[c],2.6
 yb=box(84,92.5,28,'Dimmer pot, 10k linear',('end A  -> 3V3','wiper  -> GPIO1','end B  -> GND'),'#fdf0f0')
 box(84,75,28,'Headlamp switch',('toggle or jumper','GPIO2 -> switch -> GND','closed = lights on'),'#fdf0f0')
 wire([(78,101),(84,101)],C['sig'],2); wire([(78,83.5),(84,83.5)],C['sig'],2)
-mtop=box(118,74,34,'4x4 membrane keypad',('DIYables, ribbon L to R:','R1 R2 R3 R4 C1 C2 C3 C4',' 8  9 10 11 12 13 14 15  <- GPIO','(8 Dupont M-F jumpers)','key map (membrane only for now):','1  temp: coolant / oil','2  fuel: level / ethanol','3  speedo alt face (TBD)','A  tap ODO/TRIP, hold: reset','B  tach: rpm / boost'),'#f3eefa')
+mtop=box(118,74,34,'4x4 membrane keypad',('DIYables, ribbon L to R:','R1 R2 R3 R4 C1 C2 C3 C4',' 8  9 10 11 12 13 14 15  <- GPIO','(8 Dupont M-F jumpers)','key map (membrane only for now):','1  temp: coolant / oil','2  fuel: level / ethanol','3  speedo data, hold: rotate','A  tap ODO/TRIP, hold: reset','B  tach: rpm / boost'),'#f3eefa')
 wire([(72,110.2),(72,112.3),(135,112.3),(135,mtop)],C['sig'],2.4)
 # tach
 ttop=box(154,62,28,'TACH: Waveshare 2.8C',('ESP32-S3, 480x480','SH1.0 UART header:','TXD GPIO43 -> CTX','RXD GPIO44 <- CRX','3V3, GND'),'#eef7ee')

@@ -1,0 +1,122 @@
+{
+ "spec": "Spec (owner): four Haltech values, Air / Oil / Speed / Volts. The top value is double height and gets 40 % of the height;\nthe other three split the remaining 60 %. A 4 px separator under the top value spans the centre 3/4 of the width.\nTitles: regular weight, right-justified at 25 % of the width. Values: bold, centred in the remaining 75 %. Day: black on\nwhite. Night: orange on black with a 4 px orange ring around the visible perimeter. Holding the speedo key (3) rotates the\norder, scrolling up (the top value goes to the bottom, the next one moves up).",
+ "window": {
+  "width_px": 800,
+  "visible_bottom_y_px": 660,
+  "shape": "800 px circle cut flat at y=YB by the overlay"
+ },
+ "bands_px": [
+  [
+   0,
+   264
+  ],
+  [
+   264.0,
+   396.0
+  ],
+  [
+   396.0,
+   528.0
+  ],
+  [
+   528.0,
+   660.0
+  ]
+ ],
+ "separator": {
+  "thickness_px": 4,
+  "x_px": [
+   100.0,
+   700.0
+  ]
+ },
+ "title_right_x_px": 200.0,
+ "value_centre_x_px": 500.0,
+ "fonts": {
+  "title": "Roboto Regular",
+  "value": "Roboto Bold"
+ },
+ "layout": {
+  "value_cap": [
+   114,
+   57,
+   57,
+   57
+  ],
+  "title_cap": 31,
+  "baselines": [
+   227,
+   358,
+   490,
+   604
+  ]
+ },
+ "night_ring_px": 4,
+ "colours": {
+  "day": {
+   "fg": [
+    0,
+    0,
+    0
+   ],
+   "bg": [
+    255,
+    255,
+    255
+   ]
+  },
+  "night": {
+   "fg": [
+    250,
+    100,
+    20
+   ],
+   "bg": [
+    0,
+    0,
+    0
+   ]
+  }
+ },
+ "items": [
+  {
+   "key": "air",
+   "title": "Air:",
+   "can": "0x368 bytes 0-1 Wideband Sensor 1, lambda = x/1000",
+   "show": "AFR = lambda x 14.7 (gasoline scale)",
+   "fmt": "{:.1f}",
+   "widest": "00.0"
+  },
+  {
+   "key": "oil",
+   "title": "Oil:",
+   "can": "0x361 bytes 2-3 Oil Pressure, kPa = x/10 - 101.3",
+   "show": "psi = kPa x 0.145038, floor 0",
+   "fmt": "{:.0f}",
+   "widest": "000"
+  },
+  {
+   "key": "speed",
+   "title": "Speed:",
+   "can": "0x370 bytes 0-1 Vehicle Speed, km/h = x/10",
+   "show": "mph = km/h x 0.621371",
+   "fmt": "{:.0f}",
+   "widest": "000"
+  },
+  {
+   "key": "volts",
+   "title": "Volts:",
+   "can": "0x372 bytes 0-1 Battery Voltage, V = x/10",
+   "show": "V",
+   "fmt": "{:.1f}",
+   "widest": "00.0"
+  }
+ ],
+ "default_order": [
+  "air",
+  "oil",
+  "speed",
+  "volts"
+ ],
+ "controls": "key 3: tap = stock speedo / data face; hold 2 s on the data face = rotate up one step (top goes to the bottom); order saved in hub NVS"
+}

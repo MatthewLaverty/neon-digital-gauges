@@ -22,6 +22,11 @@ while True:
     send(0x3E0, struct.pack('>H', clt_k10))
     send(0x3E2, struct.pack('>H', fuel10))
     send(0x3E4, bytes([cel]))
+    # speedo data face inputs: oil pressure (0x361 bytes 2-3, 0.1 kPa abs), wideband 1 (0x368, lambda x1000), battery (0x372, 0.1 V)
+    oil_kpa = 100 + 250 * rpm / 7000                                      # ~15-50 psi gauge, follows rpm
+    send(0x361, struct.pack('>HH', 0, int(10 * (oil_kpa + 101.3))))
+    send(0x368, struct.pack('>H', int(1000 * (1.0 + 0.12 * math.sin(t * 0.7)))))   # lambda 0.88-1.12
+    send(0x372, struct.pack('>H', int(10 * (14.1 + 0.2 * math.sin(t * 0.3)))))
     now = time.time(); trip_m += kph10 / 36.0 * (now - last); last = now   # km/h x0.1 -> m/s = x/36
     n += 1
     if n % 10 == 0: send(0x6F6, struct.pack('>ii', 0, int(trip_m)))  # 5 Hz: fuel used cc (0), Trip Meter 1 m
