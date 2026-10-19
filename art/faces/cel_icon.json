@@ -1,10 +1,43 @@
 {
  "bbox_px": [
-  289,
-  170,
-  338,
-  203
+  284,
+  65,
+  343,
+  104
  ],
+ "bbox_px_ethanol": [
+  284,
+  59,
+  343,
+  98
+ ],
+ "scale_vs_pump_width": 1.2,
+ "position": "above the pump (fuel face) / above the ethanol ring, 8 px gap",
+ "checks": {
+  "fuel": {
+   "bbox_px": [
+    284,
+    65,
+    343,
+    104
+   ],
+   "inside_hole": true,
+   "hole_margin_px": 18.8,
+   "needle_centerline_clearance_px": 25.0
+  },
+  "ethanol": {
+   "bbox_px": [
+    284,
+    59,
+    343,
+    98
+   ],
+   "inside_hole": true,
+   "hole_margin_px": 14.5,
+   "needle_centerline_clearance_px": 28.0
+  }
+ },
+ "layer_ethanol": "cel_icon_ethanol_A8.png",
  "symbol": "ISO 2575 F.01 Engine (ISO 7000-0640), placeholder until owner art",
  "color_rgb": [
   255,
@@ -12,7 +45,7 @@
   0
  ],
  "visible": "only while Haltech 0x3E4 byte 7 bit 7 (Check Engine Light) = 1; hub relays it in 0x6A3 byte 2 bit 1",
- "faces": "fuel level face; same position on the ethanol face (proposed)",
+ "faces": "fuel level face and ethanol face",
  "layer": "cel_icon_A8.png",
- "note": "needle passes over the icon between about 7/8 and F; needle is drawn on top"
+ "note": "rev b: above the pump, clear of the needle sweep"
 }

@@ -48,6 +48,9 @@ static const uint8_t ALERT_RULE_COUNT = sizeof(ALERT_RULES) / sizeof(ALERT_RULES
 #define ALERT_FLASH_R 255                  // background colour while "on" (day and night faces alike)
 #define ALERT_FLASH_G 0
 #define ALERT_FLASH_B 0
+#define ALERT_OUTLINE_PX          3        // owner 2026-10-18: black keep-out outline around needles, ticks and print
+                                           // on the red phase (480 px faces; scale with the panel, about 5 px at 800)
+#define ALERT_OUTLINE_DAY_DATA    false    // day data face is black on red already; no outline needed
 #define ENGINE_RUNNING_RPM        500
 #define CRANK_HOLDOFF_MS          2000
 #define CHANNEL_STALE_MS          1000     // a channel with no fresh frame this long cannot raise an alert
@@ -59,7 +62,8 @@ static const uint8_t ALERT_RULE_COUNT = sizeof(ALERT_RULES) / sizeof(ALERT_RULES
 
 // ---- Buzzer: Star TMX-12S magnetic transducer, low-side NPN on BUZZER_PIN (see docs/bench/POC-WIRING.md)
 #define BUZZER_PIN                6
-#define BUZZER_SELF_DRIVE         false    // true if bench test shows it beeps on plain DC (then drive on/off only)
+#define BUZZER_SELF_DRIVE         false    // owner bench test 2026-10-18: TMX-12S only CLICKS on 12 V DC, so it has no
+                                           // oscillator and must be driven with a tone (keep false)
 #define BUZZER_FREQ_HZ            1000     // drive tone; sweep 800-3000 Hz on the bench and keep the loudest
 #define BUZZER_VOLUME_PCT         100      // 100 = maximum (50 % PWM duty); lower = quieter
 #define BUZZ_ON_ALERT             true     // buzzes with the red flash pattern

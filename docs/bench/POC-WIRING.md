@@ -33,7 +33,7 @@ The TMX series is Star's magnetic transducer line ("low frequency driving type, 
 | buzzer (+) | +12 V bench supply |
 | 1N4148 diode | across the buzzer, stripe (cathode) to +12 V; it catches the coil's turn-off spike |
 
-Before wiring: measure the coil with a meter (expect tens to a few hundred ohm; current = 12 V / R must stay under about 300 mA for a 2N2222,; small 12 V magnetic buzzers typically draw tens of mA, but measure rather than assume). Then touch it to 12 V through the transistor with GPIO6 held high: a click only means it needs a tone (leave `BUZZER_SELF_DRIVE false`); a steady beep means it has its own oscillator (set it to true). Sweep `BUZZER_FREQ_HZ` 800-3000 Hz and keep the loudest. Volume: `BUZZER_VOLUME_PCT` 100 = 50 % square-wave duty, the loudest a coil can be driven at a fixed voltage. Settings: `firmware/hub/alerts_config.h`.
+Before wiring: measure the coil with a meter (expect tens to a few hundred ohm; current = 12 V / R must stay under about 300 mA for a 2N2222,; small 12 V magnetic buzzers typically draw tens of mA, but measure rather than assume). Owner bench result (2026-10-18): it clicks on 12 V DC, so it has no internal oscillator and needs a tone; `BUZZER_SELF_DRIVE` stays false. Sweep `BUZZER_FREQ_HZ` 800-3000 Hz and keep the loudest. Volume: `BUZZER_VOLUME_PCT` 100 = 50 % square-wave duty, the loudest a coil can be driven at a fixed voltage. Settings: `firmware/hub/alerts_config.h`.
 
 ## Tach: Waveshare ESP32-S3-LCD-2.8C
 
