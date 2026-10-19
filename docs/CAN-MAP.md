@@ -15,8 +15,11 @@ Source: Haltech CAN Broadcast Protocol V2.35. Re-verify against the protocol ver
 | Oil temp | 0x3E0 | 6-7 | u16 | 0.1 K | 5 Hz | TEMP (alt) |
 | Ethanol % | 0x3E1 | 4-5 | u16 | 0.1 % | 5 Hz | FUEL (alt) |
 | Fuel level | 0x3E2 | 0-1 | u16 | 0.1 L | 5 Hz | FUEL |
-| Check engine | 0x3E4 | byte 7 bit 7 | flag | 1 = on | 5 Hz | stretch |
+| Decel Cut Active | 0x3E4 | byte 1 bit 4 | flag | 1 = on | 5 Hz | HUB (blocks the AFR alert during fuel cut) |
+| Check Engine Light | 0x3E4 | byte 7 bit 7 | flag | 1 = on | 5 Hz | HUB (1 s buzz on the rising edge) and FUEL (check-engine lamp, relayed in 0x6A3) |
 | Trip Meter 1 | 0x6F6 | 4-7 | s32 | 1 m | 5 Hz | HUB (odometer + trip source) |
+
+Byte positions for 0x3E0, 0x361, 0x368, 0x372 and both 0x3E4 flags were re-checked on 2026-10-18 against the [Haltech ECU Broadcast CAN Protocol PDF](https://support.haltech.com/portal/api/kbArticles/309315000127455298/locale/en/attachments/8whone12beb10b56646c7893d210fa06b2b86/content?portalId=edbsndab83bda6a605a18494b81368a73ed74e00f5941b9c7dc264955a9257f1b8067&inline=true). The broadcast carries the CEL flag, not the trouble codes themselves. Haltech's CEL setup has a "Haltech CAN Supported Dash" option that enables CEL display on a CAN dash ([Haltech: Check Engine Light Wiring](https://support.haltech.com/portal/en/kb/articles/cel-wiring)); enable it in NSP and confirm the bit toggles on the bench sniffer before relying on it.
 
 Trip Meter 1 and the 0x370 speed scaling are confirmed in the [Haltech ECU Broadcast CAN Protocol v2.0](https://support.haltech.com/portal/en/kb/articles/haltech-can-ecu-broadcast-protocol) (big-endian; Nexus firmware 1.25 or later for full support). That document does not say whether Trip Meter 1 survives an ECU power cycle or when it resets, so the hub treats it as a counter that can restart at any time (see PLAN, odometer logic).
 
@@ -43,3 +46,12 @@ Transmitted by the hub only. Supersedes the earlier 0x6A0 layout (speed from VSS
 | 1 | Brightness | 0-255 |
 | 2 | Lighting | bit0 headlamps on (night palette) |
 | 3 | Speedo data face order | 0-3 = index of the value on top in the cycle Air, Oil, Speed, Volts; the rest follow in cycle order |
+
+0x6A3, 10 Hz and on every change (PROPOSED, 2026-10-18): alerts and lamps, transmitted by the hub only. The hub evaluates every rule in `firmware/hub/alerts_config.h`, forces the face in 0x6A1, and sends one shared flash phase so all gauges and the buzzer flash together.
+| Byte | Field | Scaling |
+|---|---|---|
+| 0 | Flashing gauges | bit0 temp, bit1 fuel, bit2 speedo, bit3 tach |
+| 1 | Flash phase | bit0 = 1: paint the background red now (3 Hz, sent on every edge) |
+| 2 | Lamps | bit0 low fuel (pump + arrow yellow), bit1 check engine (engine icon yellow) |
+| 3 | Rule bits | bit i = rule i in ALERT_RULES tripped (diagnostics) |
+| 4 | Sequence | increments per frame |

@@ -6,7 +6,7 @@
 $fn = 128;
 
 /* [Plate] */
-plate_thickness = 2.00;
+plate_thickness = 3.00;   // owner spec 2026-10-18: 3 mm at the frame mounting flange
 scale_x = 1.0000;      // calipers / model for a known width
 scale_y = 1.0000;
 outer_grow = 0.00;   // +/- grows the outer outline

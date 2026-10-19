@@ -4,7 +4,7 @@
 
 - `overlay.scad`: OpenSCAD source. All traced polygons are embedded; parameters are at the top (Customizer-friendly).
 - `neon_overlay.stl`: the default parameters, rendered.
-  - Front plate: 2.0 mm thick, z 0..2.
+  - Front plate: 3.0 mm thick, z 0..3 (owner spec 2026-10-18: the face must be 3 mm at the frame mounting flange; the interior may be relieved later if a display needs it).
   - Rear screen frames: 3 mm deep, z −3..0.
   - It matches the OpenSCAD render (same bounds; volume within 0.2 mm³).
 - `neon_overlay_outline.svg` / `.dxf`: 2D outlines. DXF layers are PLATE and SCREEN_FRAMES.

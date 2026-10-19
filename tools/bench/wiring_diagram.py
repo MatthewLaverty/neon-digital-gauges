@@ -1,4 +1,4 @@
-"""Bench PoC wiring diagram (rev 2026-10-16): PC + USB-CAN adapter as fake Haltech; hub (ESP32-S3-DevKitC-1) with
+"""Bench PoC wiring diagram (rev 2026-10-18): buzzer driver on GPIO6 added; PC + USB-CAN adapter as fake Haltech; hub (ESP32-S3-DevKitC-1) with
 4x4 membrane keypad (all keys, owner 2026-10-16), dimmer pot, headlamp switch; Blink PKP-2300-SI deferred (optional);
 no VSS loopback: speed and distance now come from the Haltech (0x370, 0x6F6); 2.8C tach at the far end."""
 import matplotlib; matplotlib.use('Agg')
@@ -18,7 +18,7 @@ def wire(pts,c,lw=2.2,ls='-'):
 def dot(x,y,c): ax.plot(x,y,'o',c=c,ms=5.5,zorder=3)
 def lab(x,y,t,c='#333',**k):
     k.setdefault('fontsize',8.2); ax.text(x,y,t,color=c,zorder=4,**k)
-ax.text(90,124,'Neon gauges: bench proof-of-concept wiring (rev 2026-10-16)',ha='center',va='top',fontsize=14,weight='bold')
+ax.text(90,124,'Neon gauges: bench proof-of-concept wiring (rev 2026-10-18)',ha='center',va='top',fontsize=14,weight='bold')
 ax.text(90,120.3,'CAN bus at 1 Mbit/s. Terminate ONLY the two ends (USB-CAN adapter and CAN board #2). With power off, expect about 60 ohm between CAN H and CAN L.',ha='center',va='top',fontsize=9.5)
 # CAN trunk
 YH,YL,YG=48,44,40; X0,X1=21,172
@@ -33,8 +33,8 @@ wire([(8,87.3),(8,114.5),(50,114.5),(50,110.2)],C['usb'],3); lab(10,115.2,'USB-C
 # hub
 top=box(28,70,50,'HUB: ESP32-S3-DevKitC-1 N16R8',(
  'GPIO4   TWAI TX -> CAN board #1 CTX','GPIO5   TWAI RX <- CAN board #1 CRX','3V3,GND         -> CAN board #1',
- 'GPIO1   ADC     <- dimmer pot wiper','GPIO2   input   <- headlamp switch','GPIO6,7  free (no VSS: speed and',
- '         distance come from the Haltech)','GPIO8-11  -> keypad rows R1-R4','GPIO12-15 <- keypad cols C1-C4','           (internal pull-ups)'),'#eef7ee')
+ 'GPIO1   ADC     <- dimmer pot wiper','GPIO2   input   <- headlamp switch','GPIO6   PWM     -> buzzer driver (1k)',
+ 'GPIO7   free','GPIO8-11  -> keypad rows R1-R4','GPIO12-15 <- keypad cols C1-C4','           (internal pull-ups)'),'#eef7ee')
 # CAN board 1
 box(32,52,26,'CAN board #1',('SN65HVD230, 3.3 V','mid-bus: NO 120R'),'#fff8e1')
 for x,c,t in ((36,'v3','3V3'),(41,'sig','CTX'),(46,'sig','CRX'),(51,'g','GND')):
@@ -56,12 +56,17 @@ for x,y,c in ((160,YH,'h'),(165,YL,'l'),(170,YG,'g')): wire([(x,50.5),(x,y)],C[c
 btop=box(62,1,46,'Blink PKP-2300-SI (DEFERRED, optional)',('AT04-4P socket, mate AT06-4S plug:','pin 1  blue   CAN L','pin 2  white  CAN H','pin 3  black  GND (battery -)','pin 4  red    +12 to 24 V',
  'Set up first, alone on the adapter:',' bit rate 1 Mbit/s (object 2010h)',' default 125 kbit/s, node 15h',' key PDO 195h, LED 215h (node 15h)'),'#f3eefa')
 for x,y,c in ((76,YH,'h'),(82,YL,'l'),(88,YG,'g')): wire([(x,btop),(x,y)],C[c],2.6); dot(x,y,C[c])
-box(114,12,26,'12 V bench supply',('+12 V -> pin 4','GND -> pin 3 AND','bus GND'),'#fff1e0')
+box(114,12,26,'12 V bench supply',('+12 V -> pin 4 + buzzer','GND -> pin 3 AND','bus GND'),'#fff1e0')
 wire([(114,25),(108,25)],C['v12'],2.8); lab(108.6,25.8,'+12 V',C['v12'])
 wire([(127,29.2),(127,YG)],C['g'],2,'--'); dot(127,YG,C['g'])
+# buzzer driver (2026-10-18)
+bt=box(86,51.5,58,'Buzzer: Star TMX-12S (magnetic, 12 V class)',('GPIO6 -> 1k -> NPN base (2N2222 or S8050)','NPN emitter -> GND; collector -> buzzer (-)','buzzer (+) -> +12 V bench supply','1N4148 across buzzer, stripe (K) to +12 V'),'#fdf0f0')
+wire([(78,73.2),(90,73.2),(90,bt)],C['sig'],2); lab(79,73.9,'GPIO6',C['sig'])
+wire([(136,29.2),(136,51.2)],C['v12'],2.8); lab(136.6,33.5,'+12 V',C['v12'])
+wire([(141,51.2),(141,YG)],C['g'],2,'--'); dot(141,YG,C['g'])
 # legend + rules
-for i,(k,t) in enumerate((('h','CAN H (twist with CAN L)'),('l','CAN L'),('g','ground / reference'),('v3','3.3 V'),('v12','12 V, keypad only'),('sig','logic signal'),('usb','USB'))):
+for i,(k,t) in enumerate((('h','CAN H (twist with CAN L)'),('l','CAN L'),('g','ground / reference'),('v3','3.3 V'),('v12','12 V (keypad, buzzer)'),('sig','logic signal'),('usb','USB'))):
     y=29-i*3.2; wire([(2,y),(7,y)],C[k],3); lab(8,y-0.8,t)
 ax.text(144,36,'Rules',fontsize=10,weight='bold',va='top')
-ax.text(144,32.5,'- 12 V goes ONLY to the Blink keypad;\n  ESP32 pins are 3.3 V only.\n- ESP32 TX -> CTX, RX -> CRX (not crossed).\n- Short stubs; twist CAN H with CAN L.\n- Mid-bus board with a fixed 120R:\n  remove it (measure ~60 ohm total).\n- Avoid GPIO0/3/45/46 (strapping),\n  19/20 (USB), 26-37 (flash/PSRAM),\n  38/48 (RGB LED).',fontsize=8.3,va='top',linespacing=1.35)
+ax.text(144,32.5,'- 12 V goes only to the Blink and the\n  buzzer; ESP32 pins are 3.3 V only.\n- ESP32 TX -> CTX, RX -> CRX (not crossed).\n- Short stubs; twist CAN H with CAN L.\n- Mid-bus board with a fixed 120R:\n  remove it (measure ~60 ohm total).\n- Avoid GPIO0/3/45/46 (strapping),\n  19/20 (USB), 26-37 (flash/PSRAM),\n  38/48 (RGB LED).',fontsize=8.3,va='top',linespacing=1.35)
 fig.savefig('docs/bench/poc_wiring.png',bbox_inches='tight',facecolor='white'); print('ok')

@@ -1,0 +1,18 @@
+{
+ "bbox_px": [
+  289,
+  170,
+  338,
+  203
+ ],
+ "symbol": "ISO 2575 F.01 Engine (ISO 7000-0640), placeholder until owner art",
+ "color_rgb": [
+  255,
+  200,
+  0
+ ],
+ "visible": "only while Haltech 0x3E4 byte 7 bit 7 (Check Engine Light) = 1; hub relays it in 0x6A3 byte 2 bit 1",
+ "faces": "fuel level face; same position on the ethanol face (proposed)",
+ "layer": "cel_icon_A8.png",
+ "note": "needle passes over the icon between about 7/8 and F; needle is drawn on top"
+}

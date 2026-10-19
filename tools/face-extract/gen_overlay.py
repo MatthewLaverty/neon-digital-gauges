@@ -9,7 +9,7 @@ OUT='/home/user/workspace/neon-digital-gauges/hardware/overlay'
 geo=json.load(open('overlay_mm.json')); faces=json.load(open('/home/user/workspace/neon-digital-gauges/art/faces/faces.json'))['gauges']
 P=os.path.join(OUT,'overlay_params.json')
 DEFAULT={
- "plate_thickness":2.0, "scale_x":1.0, "scale_y":1.0, "outer_grow":0.0,
+ "plate_thickness":3.0, "scale_x":1.0, "scale_y":1.0, "outer_grow":0.0,
  "include_lamp_holes":True, "include_slots":True, "include_mount_holes":True, "mount_hole_d":4.0,
  "windows":{
    "temp":  {"mode":"stock","grow":0.0,"offset":[0,0],"circle_d":62.0,"circle_center":faces['temp']['image_center_mm']},
