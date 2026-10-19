@@ -1,0 +1,32 @@
+{
+ "A": {
+  "board_bounds": [
+   -180.1,
+   -40.8,
+   -52.4,
+   46.7
+  ],
+  "flange_trim_mm2": 415,
+  "surround_trim_mm2": 147,
+  "surround_max_depth_past_outer_mm": 8.3,
+  "surround_x_range": [
+   -181.1,
+   -142.9
+  ]
+ },
+ "B": {
+  "board_bounds": [
+   -173.1,
+   -40.8,
+   -45.4,
+   46.7
+  ],
+  "flange_trim_mm2": 309,
+  "surround_trim_mm2": 94,
+  "surround_max_depth_past_outer_mm": 6.4,
+  "surround_x_range": [
+   -174.1,
+   -142.9
+  ]
+ }
+}
