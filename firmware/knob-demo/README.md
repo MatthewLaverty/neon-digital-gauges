@@ -46,4 +46,4 @@ If turning clockwise goes the wrong way, change `REVERSE_ROTATION` to `true` nea
 
 ## Later: the 2.8" tach board
 
-Use the same Arduino IDE and esp32 package. To check that the board works, first run Waveshare's own demo: download it from the **Resources** section of the Waveshare wiki page "ESP32-S3-LCD-2.8C", and use the board settings listed there. The tach face sketch for this project isn't written yet; it's the next firmware step.
+See `firmware/tach-demo/README.md` (also inside `tach_demo.zip`). It uses the same Arduino IDE and esp32 package, with no extra libraries.
