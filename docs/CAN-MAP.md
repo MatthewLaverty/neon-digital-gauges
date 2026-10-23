@@ -61,6 +61,8 @@ Transmitted by the hub only. Supersedes the earlier 0x6A0 layout (speed from VSS
 | 6 | Shutdown fade | 0.1 s |
 | 7 | Knob sleep | 1 s (15) |
 
+Still to place (needs a second frame or byte reuse): center_gauge (speedo/tach), startup_art_screen, cue_pulse_ms. 0x6A4 is full at 8 bytes, so these go in a 0x6A5 settings frame when the hub firmware is written.
+
 0x6A3, 10 Hz and on every change (PROPOSED, 2026-10-18): alerts and lamps, transmitted by the hub only. The hub evaluates every rule in `firmware/hub/alerts_config.h`, forces the face in 0x6A1, and sends one shared flash phase so all gauges and the buzzer flash together.
 | Byte | Field | Scaling |
 |---|---|---|

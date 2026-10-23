@@ -1,11 +1,11 @@
 # Cluster behaviour spec (owner, 2026-10-22)
 
-Settings named in `code` live in `config/cluster-config.md`. Items marked ASSUMED are my reading of the owner's spec. Confirm or correct them.
+Settings named in `code` live in `config/cluster-config.md`. Items marked ASSUMED are still unconfirmed. Owner answers of 2026-10-22 are folded in.
 
 ## 1. Selection cue on the cluster screens
-- **When:** the knob lands on a stop. The matching cluster screen draws a border in redline red (the active palette's redline tick colour: day 232,77,61, night 240,5,50). The border pulses between 8 px and 4 px wide (`cue_width_max_px`, `cue_width_min_px`, period `cue_pulse_ms`).
+- **When:** the knob lands on a stop. The matching cluster screen draws a border in redline red (the active palette's redline tick colour, owner confirmed: day 232,77,61, night 240,5,50). The border pulses between 8 px and 4 px wide (`cue_width_max_px`, `cue_width_min_px`, period `cue_pulse_ms`, configurable, default 1 s: owner confirmed).
 - **Where:**
-  - Round gauges: just inside the visible aperture of the overlay, so the full ring is seen. ASSUMED: the border follows the overlay opening, not the panel edge.
+  - Round gauges: just inside the visible aperture of the overlay, so the full ring is seen. The border follows the overlay opening, not the panel edge (owner confirmed).
   - Temp and fuel share the 5" board; each gets its own ring.
   - ODO/TRIP stop: a rounded rectangle around the readout and its ODO/TRIP legend on the tach screen (`cue_odo_corner_radius_px`, `cue_odo_padding_px`).
 - **Stops:**
@@ -15,7 +15,7 @@ Settings named in `code` live in `config/cluster-config.md`. Items marked ASSUME
 - **Resume:**
   - The knob is used again 10 s or less after the cue ended (`cue_resume_window_ms`): selection starts on the last gauge.
   - Otherwise it starts at the first stop in `select_order`.
-  - ASSUMED: the first turn or press after a timeout only shows the cue on the starting stop and doesn't advance.
+  - The first turn or press after a timeout only shows the cue on the starting stop and doesn't advance (owner confirmed).
 - **Order:** `select_order`. The default is left to right across the cluster: temp, fuel, speedo, tach, ODO/TRIP. This changes the knob demo's order (temp, fuel, tach, ODO/TRIP, speedo).
 - **Knob screen:** the cue is not mirrored to the knob screen.
 - **Alerts:** a gauge that is flashing an alert keeps its flash. ASSUMED: the cue is drawn over the flash, and face changes stay locked (`alert_lock_controls`).
@@ -40,7 +40,7 @@ Settings named in `code` live in `config/cluster-config.md`. Items marked ASSUME
 - **Sleep:**
   - Screen off if there's no interaction within 15 s of key-on (`knob_sleep_no_use_ms`).
   - Screen off 15 s after the last interaction (`knob_sleep_after_use_ms`).
-- **Wake:** any turn, tap or hold. ASSUMED: the waking input only wakes the knob and starts the cue; it doesn't also act.
+- **Wake:** any turn, tap or hold. The waking input only wakes the knob and starts the cue; it doesn't also act (owner confirmed).
 - **Saving power:** asleep, the backlight is off. The knob keeps listening on CAN and to the encoder.
 
 ## 5. Brightness
@@ -51,16 +51,18 @@ Settings named in `code` live in `config/cluster-config.md`. Items marked ASSUME
 - **5" board caveat:** the Waveshare 5" backlight is on/off only. Without the R21 mod, or a board with PWM backlight, the 5" can't follow the dimmer or its peak.
 
 ## 6. Startup art (assets in progress)
-On the tach screen, about 2 s total (`startup_art_ms`):
+On the center large screen (`startup_art_screen = center`), about 2 s total (`startup_art_ms`). The center screen is the speedo today. The owner may move the tach there, so the art follows whichever gauge sits in the center position (`center_gauge`), not a named gauge:
 1. Fade up from black to the first-gen Neon logo.
 2. The second-gen logo drops onto it and replaces it.
 3. The third-gen logo drops on and replaces it.
 4. Flare to a vignetted white.
 5. Collapse back to the ACR logo over black.
 
-Then fade to black and up to the gauges within about 2 s more (`startup_to_gauges_ms`). The knob mirrors the sequence. ASSUMED: the speedo and 5" screens stay black during the art, then fade up to the gauges together with the tach.
+Then fade to black and up to the gauges within about 2 s more (`startup_to_gauges_ms`). The knob mirrors the sequence. All the other cluster screens stay black during the art, then fade up to the gauges together with the center screen (owner confirmed).
 
-- **Sync:** the hub sends a start trigger (0x6A1 byte 2 bit 2) once it is up, so the tach and knob start together. A screen that hears nothing within 1.5 s of power-up starts on its own.
+- **Resolution:** the art is authored for the center panel (800x800 if it is the 3.4C) and scaled down for the knob (240x240).
+
+- **Sync:** the hub sends a start trigger (0x6A1 byte 2 bit 2) once it is up, so the center screen and the knob start together. A screen that hears nothing within 1.5 s of power-up starts on its own.
 - **Skip:** `startup_art = false` goes straight to the gauges. ASSUMED: if the key is cycled during the shutdown fade, the screens fade straight back up without the art.
 
 ## 7. Shutdown

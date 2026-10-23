@@ -19,10 +19,10 @@ Units: ms = milliseconds, px = pixels on a 480 px face (scaled to each panel), b
 
 | Key | Value | Notes |
 |---|---|---|
-| select_order | temp, fuel, speedo, tach, odo | Knob stop order. Default is left to right across the cluster. odo = the ODO/TRIP readout on the tach screen |
+| select_order | temp, fuel, speedo, tach, odo | Knob stop order. Default is left to right across the cluster. odo = the ODO/TRIP readout on the tach screen. If the tach moves to the center, change this too |
 | cue_width_max_px | 8 | Pulsing border, widest |
 | cue_width_min_px | 4 | Pulsing border, narrowest |
-| cue_pulse_ms | 1000 | One 8 -> 4 -> 8 cycle (PROPOSED; not in the owner spec) |
+| cue_pulse_ms | 1000 | One 8 -> 4 -> 8 cycle (owner: configurable, 1 s default) |
 | cue_color | redline | redline = the active palette's redline tick colour (day 232,77,61; night 240,5,50). Or an R,G,B triple |
 | cue_idle_timeout_ms | 5000 | No action after a selection: cue stops |
 | cue_after_action_ms | 2000 | After a tap or hold commits: cue stops this long after |
@@ -57,7 +57,9 @@ Night brightness follows the dash dimmer (`firmware/hub/dimmer.h`). Each screen 
 | Key | Value | Notes |
 |---|---|---|
 | startup_art | true | false = straight to gauges |
-| startup_art_ms | 2000 | Logo sequence on the tach screen (art in progress) |
+| center_gauge | speedo | Which gauge sits in the center large screen: speedo or tach |
+| startup_art_screen | center | Screen that plays the startup art. center = whichever gauge center_gauge names |
+| startup_art_ms | 2000 | Logo sequence on the startup_art_screen (art in progress) |
 | startup_to_gauges_ms | 2000 | Fade to black, then fade up to the gauges |
 | shutdown_fade_ms | 1000 | All screens fade to black at key-off |
 | shutdown_hold_ms | 1500 | Hub keeps power on this long after key-off (fade + state save), then releases the power latch |
