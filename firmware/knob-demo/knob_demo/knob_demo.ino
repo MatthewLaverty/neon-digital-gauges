@@ -74,7 +74,8 @@ int readEncoder() {
 
 bool hasHoldAction(int g) { return g == ODO || (g == SPEEDO && alt[SPEEDO]); }
 void holdAction(int g) {
-  gfx.invertDisplay(false); delay(500); gfx.invertDisplay(true);   // panel normally runs inverted (invert = true)
+  // LovyanGFX applies invertDisplay(x) as x XOR the panel config (invert = true), so false = normal colours.
+  gfx.invertDisplay(true); delay(500); gfx.invertDisplay(false);
   if (g == ODO) { tripWasReset = true; show(face(cur, alt[cur])); Serial.println("hold: trip reset"); }
   if (g == SPEEDO) Serial.println("hold: speedo data order rotated (on the main gauge)");
 }
