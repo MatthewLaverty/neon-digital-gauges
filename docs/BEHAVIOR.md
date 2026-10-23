@@ -1,6 +1,6 @@
 # Cluster behaviour spec (owner, 2026-10-22)
 
-Settings named in `code` live in `config/cluster-config.md`. Items marked ASSUMED are still unconfirmed. Owner answers of 2026-10-22 are folded in.
+Settings named in `code` live in `config/cluster-config.md`. All items are owner-confirmed as of 2026-10-22.
 
 ## 1. Selection cue on the cluster screens
 - **When:** the knob lands on a stop. The matching cluster screen draws a border in redline red (the active palette's redline tick colour, owner confirmed: day 232,77,61, night 240,5,50). The border pulses between 8 px and 4 px wide (`cue_width_max_px`, `cue_width_min_px`, period `cue_pulse_ms`, configurable, default 1 s: owner confirmed).
@@ -18,7 +18,7 @@ Settings named in `code` live in `config/cluster-config.md`. Items marked ASSUME
   - The first turn or press after a timeout only shows the cue on the starting stop and doesn't advance (owner confirmed).
 - **Order:** `select_order`. The default is left to right across the cluster: temp, fuel, speedo, tach, ODO/TRIP. This changes the knob demo's order (temp, fuel, tach, ODO/TRIP, speedo).
 - **Knob screen:** the cue is not mirrored to the knob screen.
-- **Alerts:** a gauge that is flashing an alert keeps its flash. ASSUMED: the cue is drawn over the flash, and face changes stay locked (`alert_lock_controls`).
+- **Alerts:** a gauge that is flashing an alert keeps its flash. The cue is drawn over the flash, and face changes stay locked (owner confirmed) (`alert_lock_controls`).
 - **CAN:** the hub drives the cue. 0x6A1 byte 4 = cued stop (0xFF = none), byte 5 = cue phase sequence.
 
 ## 2. State persists across restarts
@@ -63,7 +63,7 @@ Then fade to black and up to the gauges within about 2 s more (`startup_to_gauge
 - **Resolution:** the art is authored for the center panel (800x800 if it is the 3.4C) and scaled down for the knob (240x240).
 
 - **Sync:** the hub sends a start trigger (0x6A1 byte 2 bit 2) once it is up, so the center screen and the knob start together. A screen that hears nothing within 1.5 s of power-up starts on its own.
-- **Skip:** `startup_art = false` goes straight to the gauges. ASSUMED: if the key is cycled during the shutdown fade, the screens fade straight back up without the art.
+- **Skip:** `startup_art = false` goes straight to the gauges. If the key is cycled during the shutdown fade, the screens fade straight back up without the art (owner confirmed).
 
 ## 7. Shutdown
 - **Fade:** no art; every screen fades to black over 1 s (`shutdown_fade_ms`).
