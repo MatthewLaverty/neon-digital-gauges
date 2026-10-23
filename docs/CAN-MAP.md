@@ -44,8 +44,22 @@ Transmitted by the hub only. Supersedes the earlier 0x6A0 layout (speed from VSS
 |---|---|---|
 | 0 | Mode bits | bit0 temp = oil, bit1 fuel = ethanol, bit2 tach = boost, bit3 speedo alternate face, bit4 readout shows TRIP (else ODO) |
 | 1 | Brightness | 0-255 |
-| 2 | Lighting | bit0 headlamps on (night palette) |
+| 2 | Lighting / power | bit0 park lamps on (night palette, `firmware/hub/park_lamp.h`); bit1 shutdown: fade to black (2026-10-22); bit2 startup art go (2026-10-22) |
 | 3 | Speedo data face order | 0-3 = index of the value on top in the cycle Air, Oil, Speed, Volts; the rest follow in cycle order |
+| 4 | Selection cue (PROPOSED 2026-10-22) | stop index in `select_order` being cued, 0xFF = none (`docs/BEHAVIOR.md` section 1) |
+| 5 | Cue sequence | increments on every cue change, so screens restart the pulse together |
+
+0x6A4, at boot and 1 Hz (PROPOSED, 2026-10-22): display settings from `config/cluster-config.md`. Screens keep the last values in their own flash, so they are right at the next power-up even before the hub speaks.
+| Byte | Field | Scaling |
+|---|---|---|
+| 0 | Peak brightness, tach | 0-255 |
+| 1 | Peak brightness, speedo | 0-255 |
+| 2 | Peak brightness, 5" (temp + fuel) | 0-255 |
+| 3 | Peak brightness, knob | 0-255 |
+| 4 | Startup art length | 0.1 s (20 = 2.0 s); 0 = no art |
+| 5 | Startup to gauges | 0.1 s |
+| 6 | Shutdown fade | 0.1 s |
+| 7 | Knob sleep | 1 s (15) |
 
 0x6A3, 10 Hz and on every change (PROPOSED, 2026-10-18): alerts and lamps, transmitted by the hub only. The hub evaluates every rule in `firmware/hub/alerts_config.h`, forces the face in 0x6A1, and sends one shared flash phase so all gauges and the buzzer flash together.
 | Byte | Field | Scaling |

@@ -16,6 +16,7 @@ Goal: a hub, one gauge board (the 2.8" tach) and the control keypad, all running
 | USB-C data cables | 3 | on hand | | Power and programming |
 | Park-lamp sense: PC817 optocoupler, 2.2 kohm and 10 kohm resistors, 1N4148 diode | 1 each | <$1 (often in a starter kit) | any | Night mode from the park-lamp feed into hub GPIO2 (2026-10-22); car install, not needed on the bench |
 | Dimmer input: 47 kohm and 10 kohm resistors, 1 uF capacitor; possible dummy load (194 bulb or 100 ohm 5 W resistor) | 1 each | <$2 | any | Night brightness from the headlamp-switch dimmer into hub GPIO1 (2026-10-22); the dummy load only if the dimmer is a series rheostat |
+| Power latch: 12 V automotive relay (5-pin), 2x 2N2222, 1N4148, second PC817, 10 kohm, 1 kohm, 2.2 kohm, 5 A fuse | 1 set | about $8 | any | Keeps the cluster on about 1.5 s after key-off for the shutdown fade and state save (2026-10-22); car install |
 | Buzzer driver: NPN transistor (2N2222 or S8050), 1N4148 diode, 1 kohm resistor | 1 each | <$1 (often in a starter kit) | any | Drives the owner's Star TMX-12S magnetic buzzer from hub GPIO6 at 12 V (2026-10-18) |
 | Star TMX-12S buzzer | 1 | on hand | | Alert, low-fuel chime and check-engine buzz |
 
