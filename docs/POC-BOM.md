@@ -14,6 +14,7 @@ Goal: a hub, one gauge board (the 2.8" tach) and the control keypad, all running
 | Breadboard, Dupont jumpers, 10k pot, about 1 m of twisted pair, 16–20 AWG wire for the keypad pigtail | 1 kit | $10–15 | any | Dimmer input and CAN wiring |
 | 120 ohm resistors (only if termination is missing) | 2 | <$1 | any | Bus termination at the two ends |
 | USB-C data cables | 3 | on hand | | Power and programming |
+| Park-lamp sense: PC817 optocoupler, 2.2 kohm and 10 kohm resistors, 1N4148 diode | 1 each | <$1 (often in a starter kit) | any | Night mode from the park-lamp feed into hub GPIO2 (2026-10-22); car install, not needed on the bench |
 | Buzzer driver: NPN transistor (2N2222 or S8050), 1N4148 diode, 1 kohm resistor | 1 each | <$1 (often in a starter kit) | any | Drives the owner's Star TMX-12S magnetic buzzer from hub GPIO6 at 12 V (2026-10-18) |
 | Star TMX-12S buzzer | 1 | on hand | | Alert, low-fuel chime and check-engine buzz |
 

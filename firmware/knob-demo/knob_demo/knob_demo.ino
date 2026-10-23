@@ -4,11 +4,13 @@
 //   Tap (press)   : slide up/down to that gauge's alternate face
 //   Hold 2 s      : screen inverts 0.5 s IF that gauge has a hold action
 //                   (ODO/TRIP: reset trip; speedo: rotate data order, only on the data face). Otherwise nothing.
+//   BOOT button   : day / night palette (bench stand-in: in the car the hub follows the park-lamp circuit, 0x6A1 byte 2 bit 0)
 // Needs: ESP32 Arduino core 3.x and the LovyanGFX library. Pins from Elecrow's examples (Lesson03-Rotate).
 #include <LovyanGFX.hpp>
 #include "knob_art.h"
 
 static const int PIN_ENC_A = 45, PIN_ENC_B = 42, PIN_BTN = 41, PIN_BL = 46;
+static const int PIN_BOOT_BTN = 0;
 static const int PIN_PWR1 = 1, PIN_PWR2 = 2, PIN_PWR_LED = 40;
 static const int W = 240;
 
@@ -36,14 +38,22 @@ struct Img { const uint8_t *d; uint32_t n; LGFX_Sprite *s; };
 Img faces[N_GAUGES][2] = {
   { IMG(img_temp), IMG(img_temp_oil) }, { IMG(img_fuel), IMG(img_fuel_e85) }, { IMG(img_tach), IMG(img_tach_boost) },
   { IMG(img_odo), IMG(img_trip) },      { IMG(img_speedo), IMG(img_speedo_data) } };
+Img facesNight[N_GAUGES][2] = {
+  { IMG(img_temp_night), IMG(img_temp_oil_night) }, { IMG(img_fuel_night), IMG(img_fuel_e85_night) },
+  { IMG(img_tach_night), IMG(img_tach_boost_night) }, { IMG(img_odo), IMG(img_trip) },   // ODO/TRIP is orange in both palettes
+  { IMG(img_speedo_night), IMG(img_speedo_data_night) } };
 Img tripZero = IMG(img_trip_zero);
+bool night = false;
 int cur = TACH; bool alt[N_GAUGES] = {false}; bool tripWasReset = false;
 
 LGFX_Sprite *load(Img &im) {
   LGFX_Sprite *s = new LGFX_Sprite(&gfx); s->setPsram(true); s->setColorDepth(16); s->createSprite(W, W);
   s->fillScreen(TFT_BLACK); s->drawJpg(im.d, im.n, 0, 0); im.s = s; return s;
 }
-LGFX_Sprite *face(int g, bool a) { return (g == ODO && a && tripWasReset) ? tripZero.s : faces[g][a ? 1 : 0].s; }
+LGFX_Sprite *face(int g, bool a) {
+  if (g == ODO && a && tripWasReset) return tripZero.s;
+  return (night ? facesNight : faces)[g][a ? 1 : 0].s;
+}
 void show(LGFX_Sprite *s) { s->pushSprite(0, 0); }
 
 // slide: dx/dy = direction the old image leaves (-1/+1)
@@ -89,6 +99,11 @@ void setup() {
   gfx.init(); gfx.fillScreen(TFT_BLACK);
   canvas.setPsram(true); canvas.setColorDepth(16); canvas.createSprite(W, W);
   for (int g = 0; g < N_GAUGES; g++) { load(faces[g][0]); load(faces[g][1]); }
+  for (int g = 0; g < N_GAUGES; g++) {
+    if (g == ODO) { facesNight[g][0].s = faces[g][0].s; facesNight[g][1].s = faces[g][1].s; continue; }   // shared
+    load(facesNight[g][0]); load(facesNight[g][1]);
+  }
+  pinMode(PIN_BOOT_BTN, INPUT_PULLUP);
   load(tripZero);
   encLast = (digitalRead(PIN_ENC_A) << 1) | digitalRead(PIN_ENC_B);
   show(face(cur, alt[cur]));
@@ -97,6 +112,13 @@ void setup() {
 
 uint32_t pressAt = 0; bool pressed = false, holdDone = false;
 void loop() {
+  static bool bootWas = false; static uint32_t bootAt = 0;
+  bool boot = digitalRead(PIN_BOOT_BTN) == LOW;
+  if (boot && !bootWas && millis() - bootAt > 200) {          // BOOT press: toggle day / night
+    bootAt = millis(); night = !night; show(face(cur, alt[cur]));
+    Serial.println(night ? "night" : "day");
+  }
+  bootWas = boot;
   int step = readEncoder();
   if (step) {
     if (REVERSE_ROTATION) step = -step;

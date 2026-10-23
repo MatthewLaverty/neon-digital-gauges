@@ -41,6 +41,7 @@ Leave everything else at its default.
 | Hold 2 s on ODO/TRIP | Screen inverts for 0.5 s; the trip resets to 0.0 |
 | Hold 2 s on the speedo data face | Screen inverts for 0.5 s (rotates the data order on the real gauge) |
 | Hold anywhere else | Nothing |
+| BOOT button | Day / night (bench only; in the car the night palette follows the park lamps) |
 
 If turning clockwise goes the wrong way, change `REVERSE_ROTATION` to `true` near the top of the sketch and upload again. **Tools > Serial Monitor** at 115200 shows status messages; it should say "PSRAM ok".
 
