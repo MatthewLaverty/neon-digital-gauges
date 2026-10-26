@@ -13,6 +13,9 @@
 #include "I2C_Driver.h"
 #include "tach_art.h"
 
+// Backlight 0-100 (Waveshare scale: 100 = fully on, as in Waveshare's own demo; 80 was about 78 % duty).
+#define BACKLIGHT_PCT 100
+
 static const int W = 480, H = 480, BTN_BOOT = 0;
 static uint16_t *faceDay, *faceNight;     // decoded faces in PSRAM
 static uint16_t *fb[2];                   // the panel's two frame buffers
@@ -119,7 +122,7 @@ int buttonEvent() {   // 0 none, 1 click, 2 double, 3 long
 void setup() {
   Serial.begin(115200);
   pinMode(BTN_BOOT, INPUT_PULLUP);
-  I2C_Init(); TCA9554PWR_Init(0x00); Backlight_Init(); Set_Backlight(80);
+  I2C_Init(); TCA9554PWR_Init(0x00); Backlight_Init(); Set_Backlight(BACKLIGHT_PCT);
   LCD_Init();
   if (!psramFound()) { Serial.println("PSRAM MISSING: set Tools > PSRAM > OPI PSRAM"); }
   faceDay = (uint16_t *)heap_caps_malloc(W * H * 2, MALLOC_CAP_SPIRAM);

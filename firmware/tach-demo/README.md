@@ -36,6 +36,10 @@ Plug the board in over USB-C and click **Upload**. If the port doesn't appear or
 
 The **FPS number** is at the bottom of the screen. **Tools > Serial Monitor** at 115200 also prints the FPS, rpm and mode once a second.
 
+## Brightness
+
+The backlight is set by `BACKLIGHT_PCT` near the top of `tach_demo.ino`, from 0 to 100. It defaults to 100 (fully on). Lower it and upload again to dim the screen.
+
 ## If something's wrong
 
 - **The screen stays black:** first run Waveshare's own demo to prove the board works. Download "ESP32-S3-LCD-2.8C Demo" from the **Resources** section of the Waveshare wiki page "ESP32-S3-LCD-2.8C" and follow the settings listed there; Waveshare uses its own board package. If their demo works and this one doesn't, note what the Serial Monitor says.
