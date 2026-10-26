@@ -109,7 +109,14 @@ static bool IRAM_ATTR onFrameDone(esp_lcd_panel_handle_t, const esp_lcd_rgb_pane
 void setup() {
   Serial.begin(115200);
   pinMode(BTN_BOOT, INPUT_PULLUP);
-  I2C_Init(); TCA9554PWR_Init(0x00); Backlight_Init(); Set_Backlight(BACKLIGHT_PCT);
+  I2C_Init();
+  // The TCA9554 expander powers up with every output latch HIGH (TI datasheet: Output Port default 1111 1111), and
+  // EXIO8 drives the board's onboard buzzer. Set the latch with the buzzer off BEFORE making the pins outputs, so it
+  // never sounds. (Waveshare's own demo turns EXIO8 off in setup; the first version of this sketch missed it.)
+  Set_EXIOS(0x7F);                            // writes the output latch: EXIO8 (bit 7) low = buzzer off; EXIO1-7 keep their high default
+  TCA9554PWR_Init(0x00);                      // all EXIO pins outputs
+  Set_EXIO(EXIO_PIN8, Low);                   // and once more, explicitly
+  Backlight_Init(); Set_Backlight(BACKLIGHT_PCT);
   LCD_Init();
   if (!psramFound()) { Serial.println("PSRAM MISSING: set Tools > PSRAM > OPI PSRAM"); }
   faceDay = (uint16_t *)heap_caps_malloc(W * H * 2, MALLOC_CAP_SPIRAM);

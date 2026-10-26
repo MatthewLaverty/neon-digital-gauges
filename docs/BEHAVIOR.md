@@ -85,3 +85,4 @@ Then fade to black and up to the gauges within about 2 s more (`startup_to_gauge
 - **Frame rate:** the needle is drawn at a locked 30 fps by default (`gauge_fps_lock`; 60 or unlocked optional), in step with the panel.
 - **Renderer:** shared, in `firmware/gauge/needle_render.h`.
 - **Flash writes:** gauge boards never write to their own flash while the screen is running, because the RGB LCD stops while the flash cache is off. The one exception is caching 0x6A4 settings, which happens only after the shutdown fade. The hub owns persisted state.
+- **Board init (Waveshare 2.8C and any board with the TCA9554 expander):** the onboard buzzer on EXIO8 must be switched off before the expander pins become outputs (latch 0x7F, then EXIO8 low). The cluster's only audible alert is the hub's TMX-12S.

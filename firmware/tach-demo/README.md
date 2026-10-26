@@ -56,6 +56,8 @@ The backlight is set by `BACKLIGHT_PCT` near the top of `tach_demo.ino`, from 0 
 
 ## If something's wrong
 
+- **The board's own buzzer sounds:** fixed in this version (2026-10-25). The first version didn't switch off the onboard buzzer, so it could start after the board lost power completely. Upload this version.
+
 - **The screen stays black:** first run Waveshare's own demo to prove the board works. Download "ESP32-S3-LCD-2.8C Demo" from the **Resources** section of the Waveshare wiki page "ESP32-S3-LCD-2.8C" and follow the settings listed there; Waveshare uses its own board package. If their demo works and this one doesn't, note what the Serial Monitor says.
 - **"PSRAM MISSING" in the Serial Monitor:** set PSRAM to OPI PSRAM.
 - **The picture shifts or jitters sideways:** this is a known effect on this style of screen. The sketch already uses Waveshare's anti-drift setting (bounce buffer); note the FPS and mode when it happens.
