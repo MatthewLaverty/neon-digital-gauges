@@ -79,3 +79,9 @@ Then fade to black and up to the gauges within about 2 s more (`startup_to_gauge
   4. The hub drops the hold pin.
 - **Draw:** zero when off. It also keeps the screens from browning out if the ignition feed sags.
 - **Software fallback:** if the latch isn't built, the hub can treat 0.5 s of CAN silence from the Haltech as key-off. But by then the screens may already have lost power, so the fade isn't guaranteed.
+
+## 8. Gauge screen timing (2026-10-25)
+- **Refresh:** the 480x480 RGB-panel gauges refresh at about 60 Hz (`gauge_panel_pclk_hz`).
+- **Frame rate:** the needle is drawn at a locked 30 fps by default (`gauge_fps_lock`; 60 or unlocked optional), in step with the panel.
+- **Renderer:** shared, in `firmware/gauge/needle_render.h`.
+- **Flash writes:** gauge boards never write to their own flash while the screen is running, because the RGB LCD stops while the flash cache is off. The one exception is caching 0x6A4 settings, which happens only after the shutdown fade. The hub owns persisted state.

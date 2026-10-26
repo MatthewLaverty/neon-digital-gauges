@@ -6,22 +6,36 @@
 // FPS is shown at the bottom of the screen and printed to the Serial Monitor (115200) once a second.
 // Display, IO-expander and I2C files are Waveshare's (from the ESP32-S3-LCD-2.8C demo), unchanged except for removing LVGL
 // and using two frame buffers.
+// Speed (2026-10-25): panel clock lowered to about 60 Hz, needle drawn by firmware/gauge/needle_render.h (spans, fixed point,
+// art in internal RAM), frames synced to the panel, frame-rate lock (default 30). Settings are just below.
 #include <Arduino.h>
 #include <math.h>
 #include "Display_ST7701.h"
 #include "TCA9554PWR.h"
 #include "I2C_Driver.h"
 #include "tach_art.h"
+#include "needle_render.h"   // copy of firmware/gauge/needle_render.h (tools/sync_shared.sh)
 
+struct Box { int x0, y0, x1, y1; };      // x1/y1 exclusive
+
+// ---------------- settings ----------------
 // Backlight 0-100 (Waveshare scale: 100 = fully on, as in Waveshare's own demo; 80 was about 78 % duty).
 #define BACKLIGHT_PCT 100
+// Panel pixel clock. Waveshare ships 30 MHz (about 108 Hz refresh), which spends most of the PSRAM bandwidth and CPU
+// feeding the screen. 16.7 MHz gives about 60 Hz. The Serial Monitor prints the measured refresh ("panel Hz").
+#define PCLK_HZ 16700000
+// Frame-rate lock: 30 (default), 60, or 0 = unlocked (as fast as it can draw, still synced to the panel).
+#define FPS_LOCK 30
+// Print time per step (restore / needle / wait) once a second: 1 = on.
+#define TIMING_PRINTS 1
+// -------------------------------------------
 
 static const int W = 480, H = 480, BTN_BOOT = 0;
 static uint16_t *faceDay, *faceNight;     // decoded faces in PSRAM
 static uint16_t *fb[2];                   // the panel's two frame buffers
 static int back = 1;
-struct Box { int x0, y0, x1, y1; };       // inclusive-exclusive
-static Box lastBox[2] = {{0,0,W,H},{0,0,W,H}};
+static SemaphoreHandle_t frameDone;       // given by the driver when a frame buffer is no longer being read
+static volatile uint32_t panelFrames = 0;
 static bool night = false, nightPrev = true;
 enum Mode { DRIVE, SWEEP, HOLD };
 static Mode mode = DRIVE;
@@ -31,12 +45,6 @@ float rpmToAngle(float rpm) { return -115.6f + rpm * 0.02885f; }   // 0 = up, + 
 
 void decodeRLE(const uint16_t *r, size_t n, uint16_t *dst) {
   for (size_t i = 0; i < n; i += 2) { uint16_t c = r[i], v = r[i + 1]; while (c--) *dst++ = v; }
-}
-static inline uint16_t blend(uint16_t bg, uint16_t fg, uint8_t a) {
-  if (a == 255) return fg; if (a == 0) return bg;
-  uint32_t rb = bg & 0xF81F, g = bg & 0x07E0, rf = fg & 0xF81F, gf = fg & 0x07E0;
-  rb = (rb + (((rf - rb) * (a >> 3)) >> 5)) & 0xF81F; g = (g + (((gf - g) * (a >> 2)) >> 6)) & 0x07E0;
-  return rb | g;
 }
 
 // ---- tiny 3x5 digit font for the FPS readout
@@ -50,44 +58,18 @@ void drawNum(uint16_t *dst, int x, int y, int v, int s, uint16_t col) {
   }
 }
 static const Box FPS_BOX = {222, 446, 258, 461};
-
-void restore(uint16_t *dst, const uint16_t *face, Box b) {
+void restoreBox(uint16_t *dst, const uint16_t *face, Box b) {
   for (int y = b.y0; y < b.y1; y++) memcpy(dst + y * W + b.x0, face + y * W + b.x0, (b.x1 - b.x0) * 2);
 }
-Box unite(Box a, Box b) { return {min(a.x0,b.x0), min(a.y0,b.y0), max(a.x1,b.x1), max(a.y1,b.y1)}; }
 
-Box drawNeedle(uint16_t *dst, float angDeg) {
-  const uint16_t *nrgb = night ? needle_night_rgb : needle_day_rgb; const uint8_t *na = night ? needle_night_a : needle_day_a;
-  float a = angDeg * (float)M_PI / 180.0f, c = cosf(a), s = sinf(a);
-  // bounding box of the rotated needle rectangle
-  float xs[4] = {-NEEDLE_PIVOT_X, NEEDLE_W - NEEDLE_PIVOT_X, NEEDLE_W - NEEDLE_PIVOT_X, -NEEDLE_PIVOT_X};
-  float ys[4] = {-NEEDLE_PIVOT_Y, -NEEDLE_PIVOT_Y, NEEDLE_H - NEEDLE_PIVOT_Y, NEEDLE_H - NEEDLE_PIVOT_Y};
-  float mnx = 1e9, mny = 1e9, mxx = -1e9, mxy = -1e9;
-  for (int i = 0; i < 4; i++) { float X = xs[i] * c - ys[i] * s, Y = xs[i] * s + ys[i] * c;
-    mnx = fminf(mnx, X); mxx = fmaxf(mxx, X); mny = fminf(mny, Y); mxy = fmaxf(mxy, Y); }
-  Box b = {max(0, (int)floorf(FACE_PIVOT_X + mnx) - 1), max(0, (int)floorf(FACE_PIVOT_Y + mny) - 1),
-           min(W, (int)ceilf(FACE_PIVOT_X + mxx) + 2), min(H, (int)ceilf(FACE_PIVOT_Y + mxy) + 2)};
-  for (int y = b.y0; y < b.y1; y++) {
-    float dy = y + 0.5f - FACE_PIVOT_Y; uint16_t *row = dst + y * W;
-    for (int x = b.x0; x < b.x1; x++) {
-      float dx = x + 0.5f - FACE_PIVOT_X;
-      float u = dx * c + dy * s + NEEDLE_PIVOT_X - 0.5f, v = -dx * s + dy * c + NEEDLE_PIVOT_Y - 0.5f;   // inverse rotation
-      int iu = (int)floorf(u), iv = (int)floorf(v);
-      if (iu < 0 || iv < 0 || iu >= NEEDLE_W - 1 || iv >= NEEDLE_H - 1) continue;
-      float fu = u - iu, fv = v - iv; int k = iv * NEEDLE_W + iu;
-      float al = (na[k] * (1 - fu) + na[k + 1] * fu) * (1 - fv) + (na[k + NEEDLE_W] * (1 - fu) + na[k + NEEDLE_W + 1] * fu) * fv;
-      if (al < 1) continue;
-      int kc = (fu < 0.5f ? 0 : 1) + (fv < 0.5f ? 0 : NEEDLE_W);
-      row[x] = blend(row[x], nrgb[k + kc], (uint8_t)al);
-    }
-  }
-  // hub on top
-  int hx = (int)(FACE_PIVOT_X - HUB_W / 2.0f), hy = (int)(FACE_PIVOT_Y - HUB_H / 2.0f);
-  for (int y = 0; y < HUB_H; y++) for (int x = 0; x < HUB_W; x++) {
-    uint8_t al = hub_a[y * HUB_W + x]; if (al) dst[(hy + y) * W + hx + x] = blend(dst[(hy + y) * W + hx + x], hub_rgb[y * HUB_W + x], al);
-  }
-  return unite(b, {hx, hy, hx + HUB_W, hy + HUB_H});
+// ---- needle/hub art copied to internal RAM (fast), renderer shared with the gauge firmware
+template <typename T> T *toInternal(const T *src, size_t n) {
+  T *d = (T *)heap_caps_malloc(n * sizeof(T), MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+  if (!d) return (T *)src;                                   // fall back to flash if internal RAM is short
+  memcpy(d, src, n * sizeof(T)); return d;
 }
+static nr::Art needleDay, needleNight, hubArt;
+static nr::Renderer<480, 480, 2> R;
 
 // ---- simulated rpm
 float driveRpm(uint32_t ms) {
@@ -119,6 +101,11 @@ int buttonEvent() {   // 0 none, 1 click, 2 double, 3 long
   return 0;
 }
 
+static bool IRAM_ATTR onFrameDone(esp_lcd_panel_handle_t, const esp_lcd_rgb_panel_event_data_t *, void *) {
+  BaseType_t woken = pdFALSE; panelFrames++;
+  xSemaphoreGiveFromISR(frameDone, &woken); return woken == pdTRUE;
+}
+
 void setup() {
   Serial.begin(115200);
   pinMode(BTN_BOOT, INPUT_PULLUP);
@@ -131,15 +118,36 @@ void setup() {
   decodeRLE(face_night_rle, sizeof(face_night_rle) / 2, faceNight);
   void *f0 = nullptr, *f1 = nullptr;
   esp_lcd_rgb_panel_get_frame_buffer(panel_handle, 2, &f0, &f1); fb[0] = (uint16_t *)f0; fb[1] = (uint16_t *)f1;
+  esp_lcd_rgb_panel_set_pclk(panel_handle, PCLK_HZ);
+  frameDone = xSemaphoreCreateBinary();
+  esp_lcd_rgb_panel_event_callbacks_t cbs = {};
+  cbs.on_frame_buf_complete = onFrameDone;
+  esp_lcd_rgb_panel_register_event_callbacks(panel_handle, &cbs, nullptr);
+  const size_t NN = NEEDLE_W * NEEDLE_H, HN = HUB_W * HUB_H;
+  needleDay = {toInternal(needle_day_rgb, NN), toInternal(needle_day_a, NN), NEEDLE_W, NEEDLE_H, NEEDLE_PIVOT_X, NEEDLE_PIVOT_Y};
+  needleNight = {toInternal(needle_night_rgb, NN), toInternal(needle_night_a, NN), NEEDLE_W, NEEDLE_H, NEEDLE_PIVOT_X, NEEDLE_PIVOT_Y};
+  hubArt = {toInternal(hub_rgb, HN), toInternal(hub_a, HN), HUB_W, HUB_H, 0, 0};
+  R.begin(FACE_PIVOT_X, FACE_PIVOT_Y, &hubArt);
   Serial.printf("tach demo ready: fb %p %p\n", f0, f1);
 }
 
 void loop() {
-  static uint32_t frames = 0, fpsT = 0; static int fps = 0; static float holdRpm = 3000;
+  static uint32_t frames = 0, fpsT = 0, nextUs = 0, lastPanel = 0; static int fps = 0; static float holdRpm = 3000;
+  static uint32_t tRestore = 0, tNeedle = 0, tWait = 0, tPace = 0;
   int e = buttonEvent();
   if (e == 1) night = !night;
   if (e == 2) { mode = (Mode)((mode + 1) % 3); Serial.printf("mode %s\n", mode == DRIVE ? "DRIVE" : mode == SWEEP ? "SWEEP" : "HOLD"); }
   if (e == 3) { sweepIdx = (sweepIdx + 1) % 4; Serial.printf("sweep pass %.2f s\n", sweepPassS[sweepIdx]); }
+
+  uint32_t t0 = micros();
+  if (FPS_LOCK > 0) {                                        // pace to the lock rate
+    const uint32_t period = 1000000UL / FPS_LOCK;
+    if ((int32_t)(t0 - nextUs) < 0) delayMicroseconds(nextUs - t0);
+    uint32_t now = micros();
+    nextUs = ((int32_t)(now - nextUs) > (int32_t)period) ? now + period : nextUs + period;
+  }
+  uint32_t t1 = micros(); tPace += t1 - t0;
+
   uint32_t now = millis();
   float rpm = mode == DRIVE ? driveRpm(now) : mode == SWEEP ? sweepRpm(now) : holdRpm;
   if (mode != HOLD) holdRpm = rpm;
@@ -147,14 +155,26 @@ void loop() {
   uint16_t *dst = fb[back]; const uint16_t *face = night ? faceNight : faceDay;
   static bool full[2] = {true, true};
   if (night != nightPrev) { full[0] = full[1] = true; nightPrev = night; }
-  if (full[back]) { memcpy(dst, face, W * H * 2); full[back] = false; }
-  else { restore(dst, face, lastBox[back]); restore(dst, face, FPS_BOX); }
-  lastBox[back] = drawNeedle(dst, rpmToAngle(rpm));
+  if (full[back]) { memcpy(dst, face, W * H * 2); full[back] = false; for (int y = 0; y < H; y++) R.dirty[back][y] = {0, 0}; }
+  else { R.restore(dst, face, back); restoreBox(dst, face, FPS_BOX); }
+  uint32_t t2 = micros(); tRestore += t2 - t1;
+  R.draw(dst, night ? needleNight : needleDay, rpmToAngle(rpm), back);
   drawNum(dst, FPS_BOX.x0 + 2, FPS_BOX.y0, fps, 3, night ? 0xFB20 : 0x8410);
-  esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, W, H, dst);     // dst is a frame buffer: this swaps buffers
+  uint32_t t3 = micros(); tNeedle += t3 - t2;
+
+  xSemaphoreTake(frameDone, 0);                              // clear a stale signal
+  esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, W, H, dst);  // dst is a frame buffer: the panel switches to it
+  xSemaphoreTake(frameDone, pdMS_TO_TICKS(50));              // wait until the old buffer is no longer on screen
   back ^= 1;
+  tWait += micros() - t3;
 
   frames++;
-  if (now - fpsT >= 1000) { fps = frames * 1000 / (now - fpsT); frames = 0; fpsT = now;
-    Serial.printf("fps %d  rpm %.0f  mode %d  %s\n", fps, rpm, mode, night ? "night" : "day"); }
+  if (now - fpsT >= 1000) {
+    uint32_t dt = now - fpsT; fps = frames * 1000 / dt;
+    uint32_t pf = panelFrames; int panelHz = (pf - lastPanel) * 1000 / dt; lastPanel = pf;
+    Serial.printf("fps %d  panel Hz %d  rpm %.0f  mode %d  %s\n", fps, panelHz, rpm, mode, night ? "night" : "day");
+    if (TIMING_PRINTS && frames) Serial.printf("  per frame (ms): pace %.1f  restore %.1f  needle %.1f  wait-for-panel %.1f\n",
+        tPace / 1000.0f / frames, tRestore / 1000.0f / frames, tNeedle / 1000.0f / frames, tWait / 1000.0f / frames);
+    frames = 0; fpsT = now; tRestore = tNeedle = tWait = tPace = 0;
+  }
 }

@@ -52,6 +52,13 @@ Night brightness follows the dash dimmer (`firmware/hub/dimmer.h`). Each screen 
 | dimmer_ratio_min | 0.30 | Measure: dimmer V / battery V at the lowest setting (placeholder) |
 | dimmer_ratio_max | 0.95 | Measure: dimmer V / battery V at the highest setting (placeholder) |
 
+## Gauge screen timing
+
+| Key | Value | Notes |
+|---|---|---|
+| gauge_fps_lock | 30 | Needle frame rate: 30, 60, or 0 = as fast as possible (always synced to the panel) |
+| gauge_panel_pclk_hz | 16700000 | RGB-panel pixel clock for the 480x480 boards: about 60 Hz refresh. Waveshare's 30 MHz default (about 108 Hz) starves the drawing |
+
 ## Startup and shutdown
 
 | Key | Value | Notes |

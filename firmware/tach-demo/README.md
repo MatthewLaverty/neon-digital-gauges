@@ -36,6 +36,20 @@ Plug the board in over USB-C and click **Upload**. If the port doesn't appear or
 
 The **FPS number** is at the bottom of the screen. **Tools > Serial Monitor** at 115200 also prints the FPS, rpm and mode once a second.
 
+## Speed settings (top of `tach_demo.ino`)
+
+| Setting | Default | What it does |
+|---|---|---|
+| `FPS_LOCK` | 30 | Frame-rate lock: 30, 60, or 0 for unlocked (as fast as it can draw) |
+| `PCLK_HZ` | 16700000 | The screen's pixel clock. 16.7 MHz is about 60 Hz refresh; Waveshare's 30 MHz is about 108 Hz and leaves little time for drawing |
+| `TIMING_PRINTS` | 1 | Prints the time each step takes once a second |
+
+The Serial Monitor (115200) prints two lines a second:
+- `fps 30  panel Hz 60 ...`: the frames drawn per second, and the screen's measured refresh rate.
+- `per frame (ms): pace 18.0  restore 0.6  needle 2.1  wait-for-panel 9.8`: where the time goes. "pace" is the idle time the 30 fps lock adds. If "needle" or "restore" is large, the drawing is the limit. If "wait-for-panel" is large, the screen's refresh is.
+
+Things to try: set `FPS_LOCK` to 60 or 0 to see the top speed. If the picture jitters or shifts, lower `PCLK_HZ` (for example 14000000, about 50 Hz).
+
 ## Brightness
 
 The backlight is set by `BACKLIGHT_PCT` near the top of `tach_demo.ino`, from 0 to 100. It defaults to 100 (fully on). Lower it and upload again to dim the screen.
