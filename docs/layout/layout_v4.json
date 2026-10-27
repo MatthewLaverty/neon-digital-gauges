@@ -1,0 +1,135 @@
+{
+ "speedo": {
+  "board": "Waveshare ESP32-P4-WIFI6-Touch-LCD-4C 126 sq",
+  "center": [
+   6.23,
+   -1.0
+  ],
+  "moved_mm": [
+   6.0,
+   0
+  ],
+  "hole_r": 50.01,
+  "screen_vis_r": 50.76,
+  "art_scale_for_stock_look": 0.957,
+  "tick_tip_r_at_that_scale": 47.47
+ },
+ "tach": {
+  "board": "Waveshare ESP32-S3-LCD-2.8C (O95.86 assumed)",
+  "center": [
+   118.33,
+   -1.12
+  ],
+  "moved_mm": [
+   11.25,
+   0
+  ],
+  "hole_r": 34.31,
+  "screen_vis_r": 35.065,
+  "art_scale_for_stock_look": 0.843,
+  "tick_tip_r_at_that_scale": 32.36
+ },
+ "temp_fuel": {
+  "board": "Waveshare 5in 127.7 x 87.45",
+  "center": [
+   -121.78,
+   2.93
+  ],
+  "moved_mm": [
+   -12.5,
+   0
+  ],
+  "hole_rect": [
+   -175.0,
+   -28.7,
+   -68.5,
+   34.6
+  ],
+  "hole_size": [
+   106.5,
+   63.3
+  ],
+  "corner_r": 6.0,
+  "aa": [
+   -175.8,
+   -29.5,
+   -67.8,
+   35.3
+  ]
+ },
+ "gaps": {
+  "speedo_tach": 1.17,
+  "speedo_5in": 1.16
+ },
+ "openings_inside_face_3mm": {
+  "speedo": true,
+  "tach": true,
+  "temp_fuel": true
+ },
+ "openings_inside_screen": {
+  "speedo": true,
+  "tach": true,
+  "temp_fuel": true
+ },
+ "boards_past_face_outline": {
+  "speedo": {
+   "area_mm2": 1295,
+   "max_mm": 8.4,
+   "top_mm": 0.5
+  },
+  "tach": {
+   "area_mm2": 0.0,
+   "max_mm": 0.0,
+   "top_mm": 0.0
+  },
+  "temp_fuel": {
+   "area_mm2": 150,
+   "max_mm": 8.8,
+   "top_mm": 0.0
+  }
+ },
+ "stock_hole_offset_mm": 1.55,
+ "hole_margin_mm": 0.75,
+ "stl": {
+  "watertight": true,
+  "bounds": [
+   [
+    -202.6,
+    -57.34,
+    -3.0
+   ],
+   [
+    189.67,
+    61.49,
+    3.0
+   ]
+  ],
+  "volume_cm3": 72.8
+ },
+ "frame_trim": {
+  "speedo": {
+   "flange_trim_mm2": 1057,
+   "surround_trim_mm2": 1573,
+   "surround_y_range": [
+    -65.0,
+    63.0
+   ],
+   "below_face_max_mm": 9.4
+  },
+  "tach": {
+   "flange_trim_mm2": 74,
+   "surround_trim_mm2": 0,
+   "surround_y_range": null,
+   "below_face_max_mm": 0
+  },
+  "temp_fuel": {
+   "flange_trim_mm2": 582,
+   "surround_trim_mm2": 201,
+   "surround_y_range": [
+    36.8,
+    47.7
+   ],
+   "below_face_max_mm": 0
+  }
+ }
+}
