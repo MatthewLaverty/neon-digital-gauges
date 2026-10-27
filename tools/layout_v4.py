@@ -32,7 +32,7 @@ PLATE_T = 3.0              # owner spec: 3 mm at the flange
 FRAME_WALL, FRAME_DEPTH, FRAME_CLEAR = 1.6, 3.0, 0.4   # rear locating lips around each board
 TRIM_CLEAR = 1.0
 SPEEDO = dict(w=126.0, vis_r=101.52 / 2)
-TACH = dict(board_r=95.86 / 2, vis_r=70.13 / 2)
+TACH = dict(w=72.39, h=76.2, vis_r=70.13 / 2)   # owner caliper 2026-10-26: 2.85 in wide x 3.0 in tall (vertical offset of the extra 3.8 mm not yet known; taken as centred)
 TF = dict(w=127.7, h=87.45, aa_w=108.0, aa_h=64.8)
 # stock proportions (tick tips / true hole radius) -> recommended art scales
 STOCK_TIPS = {'speedo': 49.6, 'tach': 38.4}
@@ -43,10 +43,10 @@ def sq(c, w, h): return box(c[0] - w / 2, c[1] - h / 2, c[0] + w / 2, c[1] + h /
 
 sp_c = P0['speedo'] + [GROUP_SHIFT, 0]
 sp_board = sq(sp_c, SPEEDO['w'], SPEEDO['w'])
-spread = next(s for s in np.arange(0, 20, 0.25)
-              if sp_board.distance(Point(*(P0['tach'] + [GROUP_SHIFT + s, 0])).buffer(TACH['board_r'], 256)) >= BOARD_GAP)
-ta_c = P0['tach'] + [GROUP_SHIFT + spread, 0]
-ta_board = Point(*ta_c).buffer(TACH['board_r'], 256)
+ta_shift = next(s for s in np.arange(0, 20, 0.25)          # smallest move right of the stock pivot that clears the speedo board
+                if sp_board.distance(sq(P0['tach'] + [s, 0], TACH['w'], TACH['h'])) >= BOARD_GAP)
+ta_c = P0['tach'] + [ta_shift, 0]
+ta_board = sq(ta_c, TACH['w'], TACH['h'])
 u = np.vstack([S['temp'], S['fuel']]); uc = (u.min(0) + u.max(0)) / 2
 tf_shift = next(s for s in np.arange(0, 40, 0.25) if sq(uc - [s, 0], TF['w'], TF['h']).distance(sp_board) >= BOARD_GAP)
 tf_c = uc - [tf_shift, 0]
@@ -75,7 +75,7 @@ def past(board):                 # how far a board reaches beyond the face outli
 rep = dict(
     speedo=dict(board='Waveshare ESP32-P4-WIFI6-Touch-LCD-4C 126 sq', center=[round(v, 2) for v in sp_c], moved_mm=[GROUP_SHIFT, 0],
                 hole_r=round(SPEEDO['vis_r'] - HOLE_MARGIN, 2), screen_vis_r=SPEEDO['vis_r']),
-    tach=dict(board='Waveshare ESP32-S3-LCD-2.8C (O95.86 assumed)', center=[round(v, 2) for v in ta_c], moved_mm=[round(GROUP_SHIFT + spread, 2), 0],
+    tach=dict(board='Waveshare ESP32-S3-LCD-2.8C 72.39 x 76.2 (owner caliper)', center=[round(v, 2) for v in ta_c], moved_mm=[round(ta_shift, 2), 0],
               hole_r=round(TACH['vis_r'] - HOLE_MARGIN, 2), screen_vis_r=TACH['vis_r']),
     temp_fuel=dict(board='Waveshare 5in 127.7 x 87.45', center=[round(v, 2) for v in tf_c], moved_mm=[-tf_shift, 0],
                    hole_rect=[round(v, 1) for v in tf_hole.bounds], hole_size=[round(tf_hole.bounds[2] - tf_hole.bounds[0], 1), round(tf_hole.bounds[3] - tf_hole.bounds[1], 1)],
@@ -164,7 +164,7 @@ def line(ax, geom, **kw):
 fig, axs = plt.subplots(2, 1, figsize=(15, 11.5))
 ax = axs[0]
 fill(ax, plate, color='#2b2b2b', lw=0)
-for bd, c, n in ((sp_board, '#4fc3f7', 'speedo 4C board 126 sq'), (ta_board, '#ffb74d', 'tach 2.8C board O95.9'), (tf_board, '#81c784', '5in board 127.7 x 87.45')):
+for bd, c, n in ((sp_board, '#4fc3f7', 'speedo 4C board 126 sq'), (ta_board, '#ffb74d', 'tach 2.8C board 72.4 x 76.2'), (tf_board, '#81c784', '5in board 127.7 x 87.45')):
     line(ax, bd, color=c, lw=1.6, label=n)
 line(ax, Point(*sp_c).buffer(SPEEDO['vis_r'], 128), color='#4fc3f7', lw=0.8, ls='--')
 line(ax, Point(*ta_c).buffer(TACH['vis_r'], 128), color='#ffb74d', lw=0.8, ls='--')
@@ -174,7 +174,7 @@ ax.plot(*sp_c, '+', color='w', ms=9); ax.plot(*ta_c, '+', color='w', ms=9)
 line(ax, FACE, color='k', lw=1)
 ax.set_title(f"Layout v4 + overlay v4 (front view, mm). Openings: speedo O{2*rep['speedo']['hole_r']:.1f}, tach O{2*rep['tach']['hole_r']:.1f}, "
              f"temp+fuel {rep['temp_fuel']['hole_size'][0]} x {rep['temp_fuel']['hole_size'][1]} R{TF_CORNER_R:g}\n"
-             f"Moves vs stock: speedo +{GROUP_SHIFT:g}, tach +{GROUP_SHIFT+spread:.2f}, 5in -{tf_shift:g} mm. Board gaps: speedo-tach {rep['gaps']['speedo_tach']}, "
+             f"Moves vs stock: speedo +{GROUP_SHIFT:g}, tach +{ta_shift:.2f}, 5in -{tf_shift:g} mm. Board gaps: speedo-tach {rep['gaps']['speedo_tach']}, "
              f"speedo-5in {rep['gaps']['speedo_5in']} mm. x = stock pivots, + = new", fontsize=9)
 ax.set_aspect('equal'); ax.set_xlim(-215, 200); ax.set_ylim(-75, 75); ax.grid(alpha=.25); ax.legend(loc='lower right', fontsize=7)
 ax = axs[1]

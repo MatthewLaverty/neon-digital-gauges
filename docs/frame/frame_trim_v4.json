@@ -9,7 +9,7 @@
   "below_face_max_mm": 9.4
  },
  "tach": {
-  "flange_trim_mm2": 74,
+  "flange_trim_mm2": 0,
   "surround_trim_mm2": 0,
   "surround_y_range": null,
   "below_face_max_mm": 0

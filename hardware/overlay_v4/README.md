@@ -6,11 +6,11 @@ This replaces the stock-geometry overlay in `hardware/overlay/`, which is kept f
 | Gauge | Board | Position vs stock | Opening |
 |---|---|---|---|
 | Speedo | Waveshare ESP32-P4-WIFI6-Touch-LCD-4C, 126 x 126 mm, display area 101.52 mm | +6 mm right | Circle O100.0 (screen visible edge O101.5, 0.75 mm margin) |
-| Tach | Waveshare ESP32-S3-LCD-2.8C (board taken as O95.86), visible O70.13 | +11.25 mm right | Circle O68.6 (0.75 mm margin) |
+| Tach | Waveshare ESP32-S3-LCD-2.8C, 72.39 x 76.2 mm (owner caliper: 2.85 in wide, 3.0 in tall), visible O70.13 | none (stock pivot) | Circle O68.6 (0.75 mm margin) |
 | Temp + fuel | Waveshare 5" (127.7 x 87.45), active area 108 x 64.8 assumed centred | -12.5 mm (left) | ONE rounded rectangle, 106.5 x 63.3 mm, R6 (owner) |
 
 - **No lamp or telltale windows:** the owner removed the physical lamps.
-- **Board gaps:** 1.17 mm (speedo-tach) and 1.16 mm (speedo-5").
+- **Board gaps:** 1.65 mm (speedo-tach) and 1.16 mm (speedo-5").
 - **Plate:** 3.0 mm thick (owner spec at the flange).
 - **Rear locating lips:** 1.6 mm wall, 3 mm deep, 0.4 mm clearance around each board, clipped to the face outline.
 - **Mount holes:** the stock ones, kept.
@@ -22,14 +22,13 @@ This replaces the stock-geometry overlay in `hardware/overlay/`, which is kept f
 
 ## Mounting-frame cuts (`docs/frame/frame_trim_v4.*`)
 - **Speedo board:** 126 mm tall against about 107 mm of frame opening. The cut covers the flange top and bottom, plus the frame below the face, about 9.4 mm below the face outline including 1 mm clearance. The owner has 10 mm of drop space, so 0.6 mm spare.
-- **OPEN, the top edge:** the 4C board also reaches about 0.5 mm above the face outline at its highest point, and up to about 1.5 mm at the corners where the face top curves down. The red strip at the top of the trim drawing shows it. Check what sits directly above the flange top (hood or housing). Lowering the board instead would push the bottom past the 10 mm drop and the opening too close to the face edge.
+- **Top edge (closed 2026-10-26):** the 4C board reaches about 0.5-1.5 mm above the face outline at the top; the owner confirms there is room above the flange.
 - **5" board:** the frame trim at its top-left corner, as before, but with the board 12.5 mm left.
-- **Tach:** touches the flange slightly at the top left (74 mm²).
+- **Tach:** no frame cut needed with the measured board.
 
-## Art scale (for re-export; not in the overlay)
-The openings are fixed by the screens. The face art scale decides how much black shows outside the tick tips:
-- **Speedo:** 0.957 gives the stock proportion (tick tips r47.5 in the r50.0 opening).
-- **Tach:** 0.843 gives the stock proportion (tips r32.4 in r34.3). The current tach art (0.887) puts the tips at r34.1, only 0.25 mm from the opening edge.
+## Art scale (owner 2026-10-26: maximize display size, not clearance to the bezel)
+- **Tach:** the outermost printed pixel sits 0.1 mm inside the r34.31 opening, which is 0.877 of stock. Applied in `tools/alt-faces/export_tach_demo_art.py` and `firmware/tach-demo/tach_demo/tach_art.h`. The earlier art actually displayed at about 0.81 of stock: 86.2 mm of face across 480 px on a 70.13 mm screen, not the 0.887 the plan stated.
+- **Speedo:** assumed to follow the same rule when its 4C art is exported (to be confirmed).
 
 ## Before printing
-Photo-derived edges are good to about ±1 mm. Confirm the board outlines with calipers when the boards arrive: the 2.8C board outline in particular is assumed. Print one test piece and dry-fit it before cutting the frame.
+Photo-derived edges are good to about ±1 mm. Confirm the 4C and 5" board outlines with calipers when they arrive. The 2.8C is measured, but where its extra 3.8 mm of height sits (top or bottom) is not yet recorded; it is drawn centred. Print one test piece and dry-fit it before cutting the frame.

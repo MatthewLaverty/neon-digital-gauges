@@ -15,13 +15,13 @@
   "tick_tip_r_at_that_scale": 47.47
  },
  "tach": {
-  "board": "Waveshare ESP32-S3-LCD-2.8C (O95.86 assumed)",
+  "board": "Waveshare ESP32-S3-LCD-2.8C 72.39 x 76.2 (owner caliper)",
   "center": [
-   118.33,
+   107.08,
    -1.12
   ],
   "moved_mm": [
-   11.25,
+   0.0,
    0
   ],
   "hole_r": 34.31,
@@ -58,7 +58,7 @@
   ]
  },
  "gaps": {
-  "speedo_tach": 1.17,
+  "speedo_tach": 1.65,
   "speedo_5in": 1.16
  },
  "openings_inside_face_3mm": {
@@ -104,7 +104,7 @@
     3.0
    ]
   ],
-  "volume_cm3": 72.8
+  "volume_cm3": 72.7
  },
  "frame_trim": {
   "speedo": {
@@ -117,7 +117,7 @@
    "below_face_max_mm": 9.4
   },
   "tach": {
-   "flange_trim_mm2": 74,
+   "flange_trim_mm2": 0,
    "surround_trim_mm2": 0,
    "surround_y_range": null,
    "below_face_max_mm": 0
