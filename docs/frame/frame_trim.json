@@ -29,5 +29,5 @@
    -142.9
   ]
  },
- "scale_warning": "2026-10-26: built from geometry about 3.5 % small (hardware/overlay/scale_check.json); regenerate after the x1.035 correction before cutting."
+ "scale_check": "2026-10-26: outline scale confirmed by owner measurement (+0.55 %); no regeneration needed."
 }

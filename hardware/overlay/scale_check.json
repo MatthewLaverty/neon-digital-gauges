@@ -1,14 +1,23 @@
 {
   "date": "2026-10-26",
-  "source": "owner measurement of the physical overlay (instrument and direction to be confirmed)",
+  "source": "owner measurements of the physical overlay; holes measured horizontally through the centre",
   "measurements": [
-    {"feature": "speedo hole, across", "measured_in": 4.11, "measured_mm": 104.39, "traced_mm": 101.0, "traced_basis": "2 x median radius 50.5 about speedo_center (overlay_mm.json)", "ratio": 1.034},
-    {"feature": "tach hole, across", "measured_in": 3.21, "measured_mm": 81.53, "traced_mm": 78.7, "traced_basis": "horizontal width of shapes.tach (overlay_mm.json); traced height is 74.4", "ratio": 1.036}
+    {"feature": "overall width at the tabs flanking the lower outermost small lamp holes", "measured_in": 15.375, "measured_mm": 390.5, "traced_mm": 388.4, "traced_basis": "outer outline width at y -20..-25 (lamp_l2/lamp_r2 at y about -20)", "ratio": 1.0055},
+    {"feature": "speedo hole, horizontal through centre", "measured_in": 4.11, "measured_mm": 104.39, "traced_mm": 101.0, "traced_basis": "2 x median radius 50.5 about speedo_center", "per_side_mm": 1.70},
+    {"feature": "tach hole, horizontal through centre", "measured_in": 3.21, "measured_mm": 81.53, "traced_mm": 78.7, "traced_basis": "horizontal width of shapes.tach", "per_side_mm": 1.41}
   ],
-  "proposed_global_scale": 1.035,
-  "status": "RECORDED, NOT APPLIED. overlay_mm.json, faces.json, the overlay STL/SVG/DXF, layout, frame fit and frame trim still use the tape scale (about 3.5 % small).",
-  "open": [
-    "Confirm the tach hole was measured horizontally through the centre (the hole is not round: traced 78.7 wide x 74.4 tall).",
-    "One more check, ideally the overall overlay width (traced about 392.3 mm, expected about 406 mm if the 1.035 correction holds)."
+  "finding": "Overall scale is right (0.55 %, inside tape-measure error). The traced HOLES are small by a near-constant 1.4-1.7 mm per side, i.e. an edge offset in the hole tracing, not a scale error. The x1.035 global rescale proposed earlier the same day is WITHDRAWN.",
+  "decision": "No rescale. overlay_mm.json keeps the traced holes; true stock hole edges are about 1.55 mm further out (stock_hole_offset_mm).",
+  "stock_hole_offset_mm": 1.55,
+  "effect_on_new_overlay": {
+    "tach_hole": "screen-limited: traced x0.887 gives r 34.87 vs the 2.8in visible r 35.06 (0.19 mm margin). The true-proportion hole (r 36.1) would show a dead ring, so the hole stays as is. Consider r about 34.3 for assembly tolerance.",
+    "speedo_hole": "screen-limited: traced x0.86 gives r 43.47 vs the 3.4C visible r 43.80. True proportion (r 44.9) would exceed the screen; stays as is.",
+    "temp_fuel_holes": "full size on the 5in. Growing them by 1.55 mm would push past the assumed 5in active area (temp by 3 mm^2, fuel 0.2 mm^2), so they stay as traced unless the 5in active-area position is confirmed.",
+    "outline_frame_fit_trim": "unaffected (outline within 0.55 %)."
+  },
+  "facts_that_use_the_true_hole_sizes": [
+    "2.8in tach visible O70.1 in the 81.5 mm stock hole: about 5.7 mm per side to spare",
+    "3.4in tach visible O87.6 covers the 81.5 mm stock tach hole by about 3.0 mm per side",
+    "bare 4.0in O101.5 does NOT cover the 104.4 mm stock speedo hole (about 1.45 mm per side short)"
   ]
 }
