@@ -30,7 +30,7 @@ Bring-up order (revised 2026-10-17: membrane keypad for the proof of concept; th
 
 Bus: CANable -> twisted pair -> hub transceiver -> tach transceiver. Terminate only the two ends; check about 60 ohm between CAN H and L with the power off.
 
-Optional swap: use the Waveshare ESP32-P4 4C speedo board (locked 2026-10-26; $74.99 option on https://www.waveshare.com/esp32-p4-wifi6-touch-lcd-3.4c.htm) instead of the tach to prove the ESP32-P4 path first.
+Optional swap: use the Waveshare ESP32-P4 4C speedo board (locked 2026-10-26; listed in the $64.99–74.99 range, 4inch option, on https://www.waveshare.com/esp32-p4-wifi6-touch-lcd-3.4c.htm) instead of the tach to prove the ESP32-P4 path first.
 
 ## Later phase: knob selector (ordered 2026-10-17)
 The final selection device is the CrowPanel 1.28" HMI ESP32 rotary display (Meshnology L003045 on Amazon, $38.69), integrated after the keypad proof of concept. Still needed for it:
