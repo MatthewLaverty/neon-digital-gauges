@@ -18,18 +18,18 @@ Unzip `tach_demo.zip` and open `tach_demo/tach_demo.ino`. Keep all the other fil
 | USB CDC On Boot | Enabled |
 | Flash Size | 16MB (128Mb) |
 | PSRAM | OPI PSRAM |
-| Partition Scheme | **Custom** (uses `partitions.csv` in the sketch folder; needed for the 7.1 MB startup animation) |
+| Partition Scheme | **Custom** (uses `partitions.csv` in the sketch folder; needed for the 5.9 MB startup animation) |
 | Port | the new port that appears when you plug the board in |
 
 Leave everything else at its default.
 
 ## 4. Upload
 
-Plug the board in over USB-C and click **Upload**. The upload is about 7.7 MB, so it takes a minute or two. If the port doesn't appear or the upload fails: hold **BOOT**, tap **RESET**, release BOOT, then upload again. Press RESET once when it finishes.
+Plug the board in over USB-C and click **Upload**. The upload is about 6.5 MB, so it takes a minute or two. If the port doesn't appear or the upload fails: hold **BOOT**, tap **RESET**, release BOOT, then upload again. Press RESET once when it finishes.
 
 ## Startup animation
 
-At power-on (or RESET), the screen fades in to the startup GIF, centred at its native 480 x 360 (the round screen clips the corners; it is not scaled). At 9 s the GIF fades to black over 0.5 s, then the tach face fades up over 1 s. It plays only at power-on. The GIF is 7.74 s long, so it starts over and plays its first ~1.3 s again before the fade. To skip it, set `#define STARTUP_GIF 0` at the top of `tach_demo.ino`. The timings are the `STARTUP_...` and `FACE_FADEIN_MS` lines just below it.
+At power-on (or RESET), the screen fades in to the startup GIF, centred at its native 480 x 360 (the round screen clips the corners; it is not scaled). It plays once. The GIF is cut before the white "neon" card, so it ends on the white car "Hi." frame at about 6.3 s. It then fades quickly to black (0.3 s) and the tach face fades up over 1 s. It plays only at power-on. To skip it, set `#define STARTUP_GIF 0` at the top of `tach_demo.ino`; the fade times are the lines just below it. The uncut original is `startup_original.gif` in the repo (not in this zip).
 
 ## 5. Use it (BOOT button)
 

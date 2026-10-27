@@ -18,14 +18,14 @@
 #include <AnimatedGIF.h>      // Library Manager: "AnimatedGIF" by Larry Bank
 #include "startup_gif.h"      // owner-supplied startup animation (firmware/tach-demo/startup.gif)
 
-// Startup sequence (owner 2026-10-26, power-on only, never repeated): fade the GIF in, play it centred at native size
-// (480 x 360; the round screen clips the corners, nothing is scaled), at 9 s fade it to black, then fade the face up
-// within 1 s. The GIF is 7.74 s long, so it starts over and plays its first ~1.3 s again before the fade.
+// Startup sequence (owner 2026-10-26, power-on only, never repeated): fade the GIF in, play it ONCE centred at native
+// size (480 x 360; the round screen clips the corners, nothing is scaled). The GIF is cut before the white "neon" card
+// (ends on the white car "Hi." frame, 6.27 s); after its last frame it fades quickly to black, then the face fades up
+// within 1 s.
 // Set STARTUP_GIF 0 to skip it. Needs Tools > Partition Scheme > Custom (uses partitions.csv in this folder).
 #define STARTUP_GIF 1
 #define STARTUP_FADEIN_MS 500
-#define STARTUP_FADEOUT_AT_MS 9000
-#define STARTUP_FADEOUT_MS 500
+#define STARTUP_FADEOUT_MS 300            // quick fade to black after the last GIF frame
 #define FACE_FADEIN_MS 1000
 
 struct Box { int x0, y0, x1, y1; };      // x1/y1 exclusive
@@ -127,10 +127,10 @@ static void present(uint16_t *dst) {          // show a full frame buffer and wa
   back ^= 1;
 }
 
-static void startupBacklight(uint32_t el) {
+static void startupBacklight(uint32_t el, uint32_t fadeAt) {   // fadeAt = 0 until the last frame has been shown
   static int last = -1; int pct;
-  if (el < STARTUP_FADEIN_MS) pct = BACKLIGHT_PCT * el / STARTUP_FADEIN_MS;
-  else if (el >= STARTUP_FADEOUT_AT_MS) pct = el >= STARTUP_FADEOUT_AT_MS + STARTUP_FADEOUT_MS ? 0 : BACKLIGHT_PCT - BACKLIGHT_PCT * (el - STARTUP_FADEOUT_AT_MS) / STARTUP_FADEOUT_MS;
+  if (fadeAt && el >= fadeAt) pct = el >= fadeAt + STARTUP_FADEOUT_MS ? 0 : BACKLIGHT_PCT - BACKLIGHT_PCT * (el - fadeAt) / STARTUP_FADEOUT_MS;
+  else if (el < STARTUP_FADEIN_MS) pct = BACKLIGHT_PCT * el / STARTUP_FADEIN_MS;
   else pct = BACKLIGHT_PCT;
   if (pct != last) { Set_Backlight(pct); last = pct; }
 }
@@ -151,18 +151,22 @@ static void playStartup() {
   const int sx0 = dx < 0 ? -dx : 0, sy0 = dy < 0 ? -dy : 0, ox = dx < 0 ? 0 : dx, oy = dy < 0 ? 0 : dy;
   const int cpw = min(cw - sx0, W - ox), cph = min(ch - sy0, H - oy);
   const uint32_t t0 = millis(); uint32_t due = t0; int frames = 0;
-  while (millis() - t0 < STARTUP_FADEOUT_AT_MS + STARTUP_FADEOUT_MS) {
+  for (;;) {                                                     // play once; never loops
     int delayMs = 0; int r = gif.playFrame(false, &delayMs);
     if (r < 0) { Serial.printf("startup gif: decode error %d\n", gif.getLastError()); break; }
     uint16_t *dst = fb[back];
     for (int y = 0; y < cph; y++) memcpy(dst + (oy + y) * W + ox, rgb + (sy0 + y) * cw + sx0, cpw * 2);
-    while ((int32_t)(millis() - due) < 0) { startupBacklight(millis() - t0); delay(1); }
-    startupBacklight(millis() - t0);
+    while ((int32_t)(millis() - due) < 0) { startupBacklight(millis() - t0, 0); delay(1); }
+    startupBacklight(millis() - t0, 0);
     present(dst); frames++;
     due += delayMs > 0 ? delayMs : 60;
     if ((int32_t)(millis() - due) > 200) due = millis();       // decoding fell behind: resync instead of racing
-    if (r == 0) gif.reset();                                     // end of the GIF: start it over
+    if (r == 0) break;                                           // that was the last frame
   }
+  // hold the last frame for its delay, then fade quickly to black
+  while ((int32_t)(millis() - due) < 0) { startupBacklight(millis() - t0, 0); delay(1); }
+  const uint32_t fadeAt = millis() - t0;
+  while (millis() - t0 < fadeAt + STARTUP_FADEOUT_MS) { startupBacklight(millis() - t0, fadeAt); delay(1); }
   Set_Backlight(0);
   gif.close(); heap_caps_free(buf);
   Serial.printf("startup gif: %d frames in %lu ms\n", frames, (unsigned long)(millis() - t0));
