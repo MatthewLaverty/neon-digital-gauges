@@ -1,5 +1,7 @@
 # Replacement overlay (parametric starting point)
 
+> **DO NOT PRINT YET (2026-10-26):** owner measurements show this geometry is about 3.5 % small (speedo hole 104.4 mm measured vs 101.0, tach 81.5 vs 78.7). The "±0.5 % from the tape" figure below was wrong. A ×1.035 correction is recorded in `scale_check.json` and will be applied after one more check. `scale_x` / `scale_y` = 1.035 is the quick fix if you need a print sooner.
+
 > **v2 (2026-10-14):** the geometry is rectified, so the v1 perspective skew is removed. The method and accuracy are described in `art/README.md`. Overall about 392.3 x 118.8 mm (level); scale about ±0.5% from the tape. Still worth checking one hole with calipers before printing.
 
 - `overlay.scad`: OpenSCAD source. All traced polygons are embedded; parameters are at the top (Customizer-friendly).

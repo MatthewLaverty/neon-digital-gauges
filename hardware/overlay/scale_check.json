@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-26",
+  "source": "owner measurement of the physical overlay (instrument and direction to be confirmed)",
+  "measurements": [
+    {"feature": "speedo hole, across", "measured_in": 4.11, "measured_mm": 104.39, "traced_mm": 101.0, "traced_basis": "2 x median radius 50.5 about speedo_center (overlay_mm.json)", "ratio": 1.034},
+    {"feature": "tach hole, across", "measured_in": 3.21, "measured_mm": 81.53, "traced_mm": 78.7, "traced_basis": "horizontal width of shapes.tach (overlay_mm.json); traced height is 74.4", "ratio": 1.036}
+  ],
+  "proposed_global_scale": 1.035,
+  "status": "RECORDED, NOT APPLIED. overlay_mm.json, faces.json, the overlay STL/SVG/DXF, layout, frame fit and frame trim still use the tape scale (about 3.5 % small).",
+  "open": [
+    "Confirm the tach hole was measured horizontally through the centre (the hole is not round: traced 78.7 wide x 74.4 tall).",
+    "One more check, ideally the overall overlay width (traced about 392.3 mm, expected about 406 mm if the 1.035 correction holds)."
+  ]
+}
