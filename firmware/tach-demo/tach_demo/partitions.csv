@@ -1,0 +1,5 @@
+# Name,   Type, SubType, Offset,  Size
+# Large app partition: the embedded startup GIF is about 7.1 MB. Select Tools > Partition Scheme > Custom.
+nvs,      data, nvs,     0x9000,  0x5000
+otadata,  data, ota,     0xe000,  0x2000
+app0,     app,  factory, 0x10000, 0xF00000

@@ -15,6 +15,18 @@
 #include "I2C_Driver.h"
 #include "tach_art.h"
 #include "needle_render.h"   // copy of firmware/gauge/needle_render.h (tools/sync_shared.sh)
+#include <AnimatedGIF.h>      // Library Manager: "AnimatedGIF" by Larry Bank
+#include "startup_gif.h"      // owner-supplied startup animation (firmware/tach-demo/startup.gif)
+
+// Startup sequence (owner 2026-10-26, power-on only, never repeated): fade the GIF in, play it centred at native size
+// (480 x 360; the round screen clips the corners, nothing is scaled), at 9 s fade it to black, then fade the face up
+// within 1 s. The GIF is 7.74 s long, so it starts over and plays its first ~1.3 s again before the fade.
+// Set STARTUP_GIF 0 to skip it. Needs Tools > Partition Scheme > Custom (uses partitions.csv in this folder).
+#define STARTUP_GIF 1
+#define STARTUP_FADEIN_MS 500
+#define STARTUP_FADEOUT_AT_MS 9000
+#define STARTUP_FADEOUT_MS 500
+#define FACE_FADEIN_MS 1000
 
 struct Box { int x0, y0, x1, y1; };      // x1/y1 exclusive
 
@@ -34,6 +46,8 @@ static const int W = 480, H = 480, BTN_BOOT = 0;
 static uint16_t *faceDay, *faceNight;     // decoded faces in PSRAM
 static uint16_t *fb[2];                   // the panel's two frame buffers
 static int back = 1;
+static uint32_t faceFadeStart = 0;          // millis() when the face fade-up began; 0 = done
+static AnimatedGIF gif;
 static SemaphoreHandle_t frameDone;       // given by the driver when a frame buffer is no longer being read
 static volatile uint32_t panelFrames = 0;
 static bool night = false, nightPrev = true;
@@ -106,6 +120,54 @@ static bool IRAM_ATTR onFrameDone(esp_lcd_panel_handle_t, const esp_lcd_rgb_pane
   xSemaphoreGiveFromISR(frameDone, &woken); return woken == pdTRUE;
 }
 
+static void present(uint16_t *dst) {          // show a full frame buffer and wait until the other one is free
+  xSemaphoreTake(frameDone, 0);
+  esp_lcd_panel_draw_bitmap(panel_handle, 0, 0, W, H, dst);
+  xSemaphoreTake(frameDone, pdMS_TO_TICKS(50));
+  back ^= 1;
+}
+
+static void startupBacklight(uint32_t el) {
+  static int last = -1; int pct;
+  if (el < STARTUP_FADEIN_MS) pct = BACKLIGHT_PCT * el / STARTUP_FADEIN_MS;
+  else if (el >= STARTUP_FADEOUT_AT_MS) pct = el >= STARTUP_FADEOUT_AT_MS + STARTUP_FADEOUT_MS ? 0 : BACKLIGHT_PCT - BACKLIGHT_PCT * (el - STARTUP_FADEOUT_AT_MS) / STARTUP_FADEOUT_MS;
+  else pct = BACKLIGHT_PCT;
+  if (pct != last) { Set_Backlight(pct); last = pct; }
+}
+
+static void playStartup() {
+  memset(fb[0], 0, W * H * 2); memset(fb[1], 0, W * H * 2);
+  gif.begin(GIF_PALETTE_RGB565_LE);
+  if (!gif.open((uint8_t *)startup_gif, STARTUP_GIF_LEN, nullptr)) { Serial.println("startup gif: open failed"); return; }
+  const int cw = gif.getCanvasWidth(), ch = gif.getCanvasHeight();
+  // canvas: 8-bit indices (cw*ch) followed by the composited RGB565 frame (cw*ch*2), kept between frames
+  uint8_t *buf = (uint8_t *)heap_caps_malloc(cw * ch * 3 + cw * 2, MALLOC_CAP_SPIRAM);
+  if (!buf) { gif.close(); Serial.println("startup gif: no PSRAM"); return; }
+  memset(buf, 0, cw * ch * 3 + cw * 2);
+  gif.setDrawType(GIF_DRAW_COOKED); gif.setFrameBuf(buf);
+  const uint16_t *rgb = (const uint16_t *)(buf + cw * ch);
+  // centre at native size; crop (never scale) if the GIF is larger than the screen
+  const int dx = (W - cw) / 2, dy = (H - ch) / 2;
+  const int sx0 = dx < 0 ? -dx : 0, sy0 = dy < 0 ? -dy : 0, ox = dx < 0 ? 0 : dx, oy = dy < 0 ? 0 : dy;
+  const int cpw = min(cw - sx0, W - ox), cph = min(ch - sy0, H - oy);
+  const uint32_t t0 = millis(); uint32_t due = t0; int frames = 0;
+  while (millis() - t0 < STARTUP_FADEOUT_AT_MS + STARTUP_FADEOUT_MS) {
+    int delayMs = 0; int r = gif.playFrame(false, &delayMs);
+    if (r < 0) { Serial.printf("startup gif: decode error %d\n", gif.getLastError()); break; }
+    uint16_t *dst = fb[back];
+    for (int y = 0; y < cph; y++) memcpy(dst + (oy + y) * W + ox, rgb + (sy0 + y) * cw + sx0, cpw * 2);
+    while ((int32_t)(millis() - due) < 0) { startupBacklight(millis() - t0); delay(1); }
+    startupBacklight(millis() - t0);
+    present(dst); frames++;
+    due += delayMs > 0 ? delayMs : 60;
+    if ((int32_t)(millis() - due) > 200) due = millis();       // decoding fell behind: resync instead of racing
+    if (r == 0) gif.reset();                                     // end of the GIF: start it over
+  }
+  Set_Backlight(0);
+  gif.close(); heap_caps_free(buf);
+  Serial.printf("startup gif: %d frames in %lu ms\n", frames, (unsigned long)(millis() - t0));
+}
+
 void setup() {
   Serial.begin(115200);
   pinMode(BTN_BOOT, INPUT_PULLUP);
@@ -116,7 +178,7 @@ void setup() {
   Set_EXIOS(0x7F);                            // writes the output latch: EXIO8 (bit 7) low = buzzer off; EXIO1-7 keep their high default
   TCA9554PWR_Init(0x00);                      // all EXIO pins outputs
   Set_EXIO(EXIO_PIN8, Low);                   // and once more, explicitly
-  Backlight_Init(); Set_Backlight(BACKLIGHT_PCT);
+  Backlight_Init(); Set_Backlight(STARTUP_GIF ? 0 : BACKLIGHT_PCT);   // dark until the startup sequence fades in
   LCD_Init();
   if (!psramFound()) { Serial.println("PSRAM MISSING: set Tools > PSRAM > OPI PSRAM"); }
   faceDay = (uint16_t *)heap_caps_malloc(W * H * 2, MALLOC_CAP_SPIRAM);
@@ -136,6 +198,10 @@ void setup() {
   hubArt = {toInternal(hub_rgb, HN), toInternal(hub_a, HN), HUB_W, HUB_H, 0, 0};
   R.begin(FACE_PIVOT_X, FACE_PIVOT_Y, &hubArt);
   Serial.printf("tach demo ready: fb %p %p\n", f0, f1);
+#if STARTUP_GIF
+  playStartup();                                // power-on only; loop() then fades the face up
+  faceFadeStart = millis(); if (!faceFadeStart) faceFadeStart = 1;
+#endif
 }
 
 void loop() {
@@ -174,6 +240,11 @@ void loop() {
   xSemaphoreTake(frameDone, pdMS_TO_TICKS(50));              // wait until the old buffer is no longer on screen
   back ^= 1;
   tWait += micros() - t3;
+  if (faceFadeStart) {                           // face fade-up after the startup animation (face is already drawn)
+    uint32_t el = millis() - faceFadeStart;
+    if (el >= FACE_FADEIN_MS) { Set_Backlight(BACKLIGHT_PCT); faceFadeStart = 0; }
+    else Set_Backlight(BACKLIGHT_PCT * el / FACE_FADEIN_MS);
+  }
 
   frames++;
   if (now - fpsT >= 1000) {

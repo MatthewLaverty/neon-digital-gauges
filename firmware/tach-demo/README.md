@@ -4,7 +4,7 @@ This runs on the Waveshare ESP32-S3-LCD-2.8C by itself: no hub, no CAN. It shows
 
 ## 1. Software
 
-Use the same setup as the knob: Arduino IDE 2 with "esp32 by Espressif Systems" 3.3.x installed. **No extra libraries are needed**: Waveshare's screen driver files are already inside the sketch folder.
+Use the same setup as the knob: Arduino IDE 2 with "esp32 by Espressif Systems" 3.3.x installed. Install one library: **Sketch > Include Library > Manage Libraries**, search **AnimatedGIF** (by Larry Bank), and click Install. It plays the startup animation. Waveshare's screen driver files are already inside the sketch folder.
 
 ## 2. Open the demo
 
@@ -18,13 +18,18 @@ Unzip `tach_demo.zip` and open `tach_demo/tach_demo.ino`. Keep all the other fil
 | USB CDC On Boot | Enabled |
 | Flash Size | 16MB (128Mb) |
 | PSRAM | OPI PSRAM |
+| Partition Scheme | **Custom** (uses `partitions.csv` in the sketch folder; needed for the 7.1 MB startup animation) |
 | Port | the new port that appears when you plug the board in |
 
 Leave everything else at its default.
 
 ## 4. Upload
 
-Plug the board in over USB-C and click **Upload**. If the port doesn't appear or the upload fails: hold **BOOT**, tap **RESET**, release BOOT, then upload again. Press RESET once when it finishes.
+Plug the board in over USB-C and click **Upload**. The upload is about 7.7 MB, so it takes a minute or two. If the port doesn't appear or the upload fails: hold **BOOT**, tap **RESET**, release BOOT, then upload again. Press RESET once when it finishes.
+
+## Startup animation
+
+At power-on (or RESET), the screen fades in to the startup GIF, centred at its native 480 x 360 (the round screen clips the corners; it is not scaled). At 9 s the GIF fades to black over 0.5 s, then the tach face fades up over 1 s. It plays only at power-on. The GIF is 7.74 s long, so it starts over and plays its first ~1.3 s again before the fade. To skip it, set `#define STARTUP_GIF 0` at the top of `tach_demo.ino`. The timings are the `STARTUP_...` and `FACE_FADEIN_MS` lines just below it.
 
 ## 5. Use it (BOOT button)
 
@@ -60,6 +65,8 @@ The backlight is set by `BACKLIGHT_PCT` near the top of `tach_demo.ino`, from 0 
 
 - **The screen stays black:** first run Waveshare's own demo to prove the board works. Download "ESP32-S3-LCD-2.8C Demo" from the **Resources** section of the Waveshare wiki page "ESP32-S3-LCD-2.8C" and follow the settings listed there; Waveshare uses its own board package. If their demo works and this one doesn't, note what the Serial Monitor says.
 - **"PSRAM MISSING" in the Serial Monitor:** set PSRAM to OPI PSRAM.
+- **"Sketch too big" when compiling:** set Partition Scheme to Custom, and make sure `partitions.csv` is in the sketch folder.
+- **"AnimatedGIF.h: No such file":** install the AnimatedGIF library (step 1).
 - **The picture shifts or jitters sideways:** this is a known effect on this style of screen. The sketch already uses Waveshare's anti-drift setting (bounce buffer); note the FPS and mode when it happens.
 
 This sketch compiles but hasn't been run on the real board yet.
