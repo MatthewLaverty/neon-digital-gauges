@@ -29,7 +29,7 @@ Plug the board in over USB-C and click **Upload**. The upload is about 6.5 MB, s
 
 ## Startup animation
 
-At power-on (or RESET), the screen fades in to the startup GIF, centred at its native 480 x 360 (the round screen clips the corners; it is not scaled). It plays once. The GIF is cut before the white "neon" card, so it ends on the white car "Hi." frame at about 6.3 s. It then fades quickly to black (0.3 s) and the tach face fades up over 1 s. It plays only at power-on. To skip it, set `#define STARTUP_GIF 0` at the top of `tach_demo.ino`; the fade times are the lines just below it. The uncut original is `startup_original.gif` in the repo (not in this zip).
+At power-on (or RESET), the screen fades in to the startup GIF, zoomed to fill the full screen height (x1.33; about 60 source pixels are cropped off each side, and the round screen clips the corners). It plays once. The GIF is cut before the white "neon" card, so it ends on the white car "Hi." frame at about 6.3 s. It then fades quickly to black (0.3 s) and the tach face fades up over 1 s. It plays only at power-on. To skip it, set `#define STARTUP_GIF 0` at the top of `tach_demo.ino`; the fade times are the lines just below it. The uncut original is `startup_original.gif` in the repo (not in this zip).
 
 ## 5. Use it (BOOT button)
 

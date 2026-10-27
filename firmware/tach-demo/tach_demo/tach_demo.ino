@@ -18,8 +18,8 @@
 #include <AnimatedGIF.h>      // Library Manager: "AnimatedGIF" by Larry Bank
 #include "startup_gif.h"      // owner-supplied startup animation (firmware/tach-demo/startup.gif)
 
-// Startup sequence (owner 2026-10-26, power-on only, never repeated): fade the GIF in, play it ONCE centred at native
-// size (480 x 360; the round screen clips the corners, nothing is scaled). The GIF is cut before the white "neon" card
+// Startup sequence (owner 2026-10-26, power-on only, never repeated): fade the GIF in, play it ONCE, zoomed to fill
+// the full 480 px height (x1.33; the sides are cropped and the round screen clips the corners). The GIF is cut before the white "neon" card
 // (ends on the white car "Hi." frame, 6.27 s); after its last frame it fades quickly to black, then the face fades up
 // within 1 s.
 // Set STARTUP_GIF 0 to skip it. Needs Tools > Partition Scheme > Custom (uses partitions.csv in this folder).
@@ -146,16 +146,23 @@ static void playStartup() {
   memset(buf, 0, cw * ch * 3 + cw * 2);
   gif.setDrawType(GIF_DRAW_COOKED); gif.setFrameBuf(buf);
   const uint16_t *rgb = (const uint16_t *)(buf + cw * ch);
-  // centre at native size; crop (never scale) if the GIF is larger than the screen
-  const int dx = (W - cw) / 2, dy = (H - ch) / 2;
-  const int sx0 = dx < 0 ? -dx : 0, sy0 = dy < 0 ? -dy : 0, ox = dx < 0 ? 0 : dx, oy = dy < 0 ? 0 : dy;
-  const int cpw = min(cw - sx0, W - ox), cph = min(ch - sy0, H - oy);
+  // zoom to fill the full screen height (owner 2026-10-26), centred; the sides are cropped. Nearest-pixel mapping.
+  static int16_t xmap[W]; static int16_t ymap[H];
+  const float zs = (float)H / ch;                                // 480 / 360 = 1.333
+  const float xoff = (cw * zs - W) / 2.0f;                       // output pixels cropped off each side
+  for (int x = 0; x < W; x++) { int sx = (int)((x + xoff + 0.5f) / zs); xmap[x] = (sx >= 0 && sx < cw) ? sx : -1; }
+  for (int y = 0; y < H; y++) { int sy = (int)((y + 0.5f) / zs); ymap[y] = sy < ch ? sy : ch - 1; }
   const uint32_t t0 = millis(); uint32_t due = t0; int frames = 0;
   for (;;) {                                                     // play once; never loops
     int delayMs = 0; int r = gif.playFrame(false, &delayMs);
     if (r < 0) { Serial.printf("startup gif: decode error %d\n", gif.getLastError()); break; }
     uint16_t *dst = fb[back];
-    for (int y = 0; y < cph; y++) memcpy(dst + (oy + y) * W + ox, rgb + (sy0 + y) * cw + sx0, cpw * 2);
+    for (int y = 0; y < H; y++) {
+      uint16_t *d = dst + y * W;
+      if (y && ymap[y] == ymap[y - 1]) { memcpy(d, d - W, W * 2); continue; }   // repeated source row
+      const uint16_t *srow = rgb + ymap[y] * cw;
+      for (int x = 0; x < W; x++) d[x] = xmap[x] >= 0 ? srow[xmap[x]] : 0;
+    }
     while ((int32_t)(millis() - due) < 0) { startupBacklight(millis() - t0, 0); delay(1); }
     startupBacklight(millis() - t0, 0);
     present(dst); frames++;
