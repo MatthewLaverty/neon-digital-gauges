@@ -2,11 +2,40 @@
   "date": "2026-10-26",
   "source": "owner measurements of the physical overlay; holes measured horizontally through the centre",
   "measurements": [
-    {"feature": "overall width at the tabs flanking the lower outermost small lamp holes", "measured_in": 15.375, "measured_mm": 390.5, "traced_mm": 388.4, "traced_basis": "outer outline width at y -20..-25 (lamp_l2/lamp_r2 at y about -20)", "ratio": 1.0055},
-    {"feature": "speedo hole, horizontal through centre", "measured_in": 4.11, "measured_mm": 104.39, "traced_mm": 101.0, "traced_basis": "2 x median radius 50.5 about speedo_center", "per_side_mm": 1.70},
-    {"feature": "tach hole, horizontal through centre", "measured_in": 3.21, "measured_mm": 81.53, "traced_mm": 78.7, "traced_basis": "horizontal width of shapes.tach", "per_side_mm": 1.41}
+    {
+      "feature": "overall width at the tabs flanking the lower outermost small lamp holes",
+      "measured_in": 15.375,
+      "measured_mm": 390.5,
+      "traced_mm": 388.4,
+      "traced_basis": "outer outline width at y -20..-25 (lamp_l2/lamp_r2 at y about -20)",
+      "ratio": 1.0055
+    },
+    {
+      "feature": "speedo hole, horizontal through centre",
+      "measured_in": 4.11,
+      "measured_mm": 104.39,
+      "traced_mm": 101.0,
+      "traced_basis": "2 x median radius 50.5 about speedo_center",
+      "per_side_mm": 1.7
+    },
+    {
+      "feature": "tach hole, horizontal through centre",
+      "measured_in": 3.21,
+      "measured_mm": 81.53,
+      "traced_mm": 78.7,
+      "traced_basis": "horizontal width of shapes.tach",
+      "per_side_mm": 1.41
+    },
+    {
+      "feature": "overall height",
+      "measured_in": 4.6875,
+      "measured_mm": 119.06,
+      "traced_mm": 118.8,
+      "traced_basis": "level overlay height (section 4.2d)",
+      "ratio": 1.0022
+    }
   ],
-  "finding": "Overall scale is right (0.55 %, inside tape-measure error). The traced HOLES are small by a near-constant 1.4-1.7 mm per side, i.e. an edge offset in the hole tracing, not a scale error. The x1.035 global rescale proposed earlier the same day is WITHDRAWN.",
+  "finding": "Overall scale is right (0.55 %, inside tape-measure error). The traced HOLES are small by a near-constant 1.4-1.7 mm per side, i.e. an edge offset in the hole tracing, not a scale error. The x1.035 global rescale proposed earlier the same day is WITHDRAWN. Height check 2026-10-26: 4-11/16 in (119.06 mm) vs 118.8 traced (+0.2 %), so the vertical scale is confirmed too.",
   "decision": "No rescale. overlay_mm.json keeps the traced holes; true stock hole edges are about 1.55 mm further out (stock_hole_offset_mm).",
   "stock_hole_offset_mm": 1.55,
   "effect_on_new_overlay": {
