@@ -1,4 +1,5 @@
-"""Bench PoC wiring diagram (rev 2026-10-18): buzzer driver on GPIO6 added; PC + USB-CAN adapter as fake Haltech; hub (ESP32-S3-DevKitC-1) with
+"""Bench PoC wiring diagram (rev 2026-11-01: the CrowPanel 1.28in twist knob replaces the 4x4 membrane keypad; it joins the CAN bus mid-bus
+through CAN board #3 on its I2C connector, GPIO38/39 as TWAI). Earlier (rev 2026-10-18): buzzer driver on GPIO6 added; PC + USB-CAN adapter as fake Haltech; hub (ESP32-S3-DevKitC-1) with
 4x4 membrane keypad (all keys, owner 2026-10-16), dimmer pot, headlamp switch; Blink PKP-2300-SI deferred (optional);
 no VSS loopback: speed and distance now come from the Haltech (0x370, 0x6F6); 2.8C tach at the far end."""
 import matplotlib; matplotlib.use('Agg')
@@ -18,8 +19,8 @@ def wire(pts,c,lw=2.2,ls='-'):
 def dot(x,y,c): ax.plot(x,y,'o',c=c,ms=5.5,zorder=3)
 def lab(x,y,t,c='#333',**k):
     k.setdefault('fontsize',8.2); ax.text(x,y,t,color=c,zorder=4,**k)
-ax.text(90,124,'Neon gauges: bench proof-of-concept wiring (rev 2026-10-18)',ha='center',va='top',fontsize=14,weight='bold')
-ax.text(90,120.3,'CAN bus at 1 Mbit/s. Terminate ONLY the two ends (USB-CAN adapter and CAN board #2). With power off, expect about 60 ohm between CAN H and CAN L.',ha='center',va='top',fontsize=9.5)
+ax.text(90,124,'Neon gauges: bench proof-of-concept wiring (rev 2026-11-01: twist knob)',ha='center',va='top',fontsize=14,weight='bold')
+ax.text(90,120.3,'CAN bus at 1 Mbit/s. Terminate ONLY the two ends (USB-CAN adapter and CAN board #2, tach); boards #1 and #3 are mid-bus. With power off, expect about 60 ohm between CAN H and CAN L.',ha='center',va='top',fontsize=9.5)
 # CAN trunk
 YH,YL,YG=48,44,40; X0,X1=21,172
 wire([(X0,YH),(X1,YH)],C['h'],3.2); wire([(X0,YL),(X1,YL)],C['l'],3.2); wire([(X0,YG),(X1,YG)],C['g'],2,'--')
@@ -34,7 +35,7 @@ wire([(8,87.3),(8,114.5),(50,114.5),(50,110.2)],C['usb'],3); lab(10,115.2,'USB-C
 top=box(28,70,50,'HUB: ESP32-S3-DevKitC-1 N16R8',(
  'GPIO4   TWAI TX -> CAN board #1 CTX','GPIO5   TWAI RX <- CAN board #1 CRX','3V3,GND         -> CAN board #1',
  'GPIO1   ADC     <- dimmer pot wiper','GPIO2   input   <- headlamp switch','GPIO6   PWM     -> buzzer driver (1k)',
- 'GPIO7   free','GPIO8-11  -> keypad rows R1-R4','GPIO12-15 <- keypad cols C1-C4','           (internal pull-ups)'),'#eef7ee')
+ 'GPIO7   free','GPIO8-15  free (keypad removed;','           the knob talks over CAN)'),'#eef7ee')
 # CAN board 1
 box(32,52,26,'CAN board #1',('SN65HVD230, 3.3 V','mid-bus: NO 120R'),'#fff8e1')
 for x,c,t in ((36,'v3','3V3'),(41,'sig','CTX'),(46,'sig','CRX'),(51,'g','GND')):
@@ -44,8 +45,12 @@ for x,y,c in ((38,YH,'h'),(44,YL,'l'),(50,YG,'g')): wire([(x,52),(x,y)],C[c],2.6
 yb=box(84,92.5,28,'Dimmer pot, 10k linear',('end A  -> 3V3','wiper  -> GPIO1','end B  -> GND'),'#fdf0f0')
 box(84,75,28,'Headlamp switch',('toggle or jumper','GPIO2 -> switch -> GND','closed = lights on'),'#fdf0f0')
 wire([(78,101),(84,101)],C['sig'],2); wire([(78,83.5),(84,83.5)],C['sig'],2)
-mtop=box(118,74,34,'4x4 membrane keypad',('DIYables, ribbon L to R:','R1 R2 R3 R4 C1 C2 C3 C4',' 8  9 10 11 12 13 14 15  <- GPIO','(8 Dupont M-F jumpers)','key map (membrane only for now):','1  temp: coolant / oil','2  fuel: level / ethanol','3  speedo data, hold: rotate','A  tap ODO/TRIP, hold: reset','B  tach: rpm / boost'),'#f3eefa')
-wire([(72,110.2),(72,112.3),(135,112.3),(135,mtop)],C['sig'],2.4)
+ktop=box(120,76,32,'KNOB: CrowPanel 1.28"',('Elecrow ESP32-S3, 240x240','USB-C: power + programming','4-pin 1.25 mm I2C connector:',' 5V  -> 3.3V LDO -> 3V3',' IO38 TWAI TX -> CTX',' IO39 TWAI RX <- CRX',' GND -> GND','verify pinout with a meter','sends 0x6A2: tap/hold + stop','car: 12->5 V buck, 1 A+'),'#f3eefa')
+wire([(137,114.5),(137,ktop)],C['usb'],3)
+box(122,52,28,'CAN board #3',('SN65HVD230, 3.3 V','mid-bus: NO 120R'),'#fff8e1')
+for x,c,t in ((125,'v3','3V3'),(132,'sig','CTX'),(139,'sig','CRX'),(146,'g','GND')):
+    wire([(x,76),(x,65.9)],C[c],2); lab(x+0.4,67.0,t,C[c],fontsize=7.2)
+for x,y,c in ((128,YH,'h'),(136,YL,'l'),(144,YG,'g')): wire([(x,52),(x,y)],C[c],2.6); dot(x,y,C[c])
 # tach
 ttop=box(154,62,28,'TACH: Waveshare 2.8C',('ESP32-S3, 480x480','SH1.0 UART header:','TXD GPIO43 -> CTX','RXD GPIO44 <- CRX','3V3, GND'),'#eef7ee')
 wire([(50,114.5),(176,114.5),(176,ttop)],C['usb'],3)
@@ -60,12 +65,12 @@ box(114,12,26,'12 V bench supply',('+12 V -> pin 4 + buzzer','GND -> pin 3 AND',
 wire([(114,25),(108,25)],C['v12'],2.8); lab(108.6,25.8,'+12 V',C['v12'])
 wire([(127,29.2),(127,YG)],C['g'],2,'--'); dot(127,YG,C['g'])
 # buzzer driver (2026-10-18)
-bt=box(86,51.5,58,'Buzzer: Star TMX-12S (magnetic, 12 V class)',('GPIO6 -> 1k -> NPN base (2N2222 or S8050)','NPN emitter -> GND; collector -> buzzer (-)','buzzer (+) -> +12 V bench supply','1N4148 across buzzer, stripe (K) to +12 V'),'#fdf0f0')
+bt=box(84,51.5,35,'Buzzer: Star TMX-12S',('GPIO6 -> 1k -> NPN base','NPN 2N2222/S8050: E GND','C -> buzzer(-), (+) 12V','1N4148 across, K to +12V'),'#fdf0f0')
 wire([(78,73.2),(90,73.2),(90,bt)],C['sig'],2); lab(79,73.9,'GPIO6',C['sig'])
-wire([(136,29.2),(136,51.2)],C['v12'],2.8); lab(136.6,33.5,'+12 V',C['v12'])
-wire([(141,51.2),(141,YG)],C['g'],2,'--'); dot(141,YG,C['g'])
+wire([(117,29.2),(117,51.2)],C['v12'],2.8); lab(117.6,33.5,'+12 V',C['v12'])
+wire([(104,51.2),(104,YG)],C['g'],2,'--'); dot(104,YG,C['g'])
 # legend + rules
-for i,(k,t) in enumerate((('h','CAN H (twist with CAN L)'),('l','CAN L'),('g','ground / reference'),('v3','3.3 V'),('v12','12 V (keypad, buzzer)'),('sig','logic signal'),('usb','USB'))):
+for i,(k,t) in enumerate((('h','CAN H (twist with CAN L)'),('l','CAN L'),('g','ground / reference'),('v3','3.3 V'),('v12','12 V (buzzer, Blink)'),('sig','logic signal'),('usb','USB'))):
     y=29-i*3.2; wire([(2,y),(7,y)],C[k],3); lab(8,y-0.8,t)
 ax.text(144,36,'Rules',fontsize=10,weight='bold',va='top')
 ax.text(144,32.5,'- 12 V goes only to the Blink and the\n  buzzer; ESP32 pins are 3.3 V only.\n- ESP32 TX -> CTX, RX -> CRX (not crossed).\n- Short stubs; twist CAN H with CAN L.\n- Mid-bus board with a fixed 120R:\n  remove it (measure ~60 ohm total).\n- Avoid GPIO0/3/45/46 (strapping),\n  19/20 (USB), 26-37 (flash/PSRAM),\n  38/48 (RGB LED).',fontsize=8.3,va='top',linespacing=1.35)
