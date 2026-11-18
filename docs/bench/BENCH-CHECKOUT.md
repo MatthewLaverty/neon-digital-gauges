@@ -18,7 +18,7 @@ Goal: prove that no 12 V or 5 V can reach anything wired to a hub pin or a USB c
 - **Optocouplers:** in diode mode, pin 1 (+) to pin 2 should read about 1.0–1.2 V, and OL reversed. That confirms which end is pin 1.
 
 ## Step 1: everything off, nothing connected
-No supplies, no module power, hub wires unplugged. Pull out the PARK, IGN and DIM stand-in wires (or the pot wiper).
+No supplies, no module power, hub wires unplugged. Pull out the PARK and IGN stand-in wires. Dimmer: the pot replaces the orange DIM wire (pot ends on the 12 V and GND rails, wiper in col 26). For this step, lift the pot's 12 V lead out of the rail. Otherwise the pot puts about 10k between 12 V and GND and gives the 12 V rail a path to col 30.
 
 | Measure between | Expect | If wrong |
 |---|---|---|
@@ -28,7 +28,7 @@ No supplies, no module power, hub wires unplugged. Pull out the PARK, IGN and DI
 | 12 V rail and col 10, 20, 28, 30, 48 (each) | OL | **STOP:** 12 V can reach a hub pin |
 | 3.3 V rail and col 10, 20 | 10k each (pull-ups) | wrong resistor or wrong column |
 | col 30 and GND | climbs to 10k (the cap charges first) | 10k missing or misplaced |
-| col 26 and col 30 | 47k | |
+| col 26 and col 30 | about 47k plus part of the pot (12 V lead lifted) | |
 | col 28 and col 32 | 1k | |
 | col 48 and col 51 | 1k | |
 | relay 85 and 86 at the relay | coil resistance, tens of ohms | |
@@ -36,6 +36,7 @@ No supplies, no module power, hub wires unplugged. Pull out the PARK, IGN and DI
 | each rail, col 1 and col 65 | 0 Ω | the rail is split in the middle |
 
 ## Step 2: power on, no hub, no Mac
+- **Pot:** put its 12 V lead back in the rail.
 - **Supplies:** plug the power module into a phone charger, not the Mac. Turn on the 12 V supply. Meter everything to GND.
 - **Rails:** top + should read 3.3 V (±0.1), bottom + 12 V. Module powered alone, before the 12 V supply is on: bottom + reads 0 V.
 - **Signal columns:** they must stay between 0 and 3.4 V in every stand-in state. Anything above 3.4 V means **STOP**.
@@ -44,7 +45,7 @@ No supplies, no module power, hub wires unplugged. Pull out the PARK, IGN and DI
   |---|---|---|
   | 10 (GPIO2) | 3.3 V | under 0.4 V (PARK in) |
   | 20 (GPIO7) | 3.3 V | under 0.4 V (IGN in); relay clicks, col 60 = 12 V |
-  | 30 (GPIO1) | 0 V | about 2.1 V (DIM in or pot at max) |
+  | 30 (GPIO1) | pot at min: 0 V | pot at max: about 2.1 V; it should change smoothly in between |
   | 28 (GPIO6) | about 0 V | jumper 3.3 V to col 28: buzzer clicks |
   | 48 (GPIO21) | about 0 V | jumper 3.3 V to col 48 with IGN in, then pull IGN: relay holds |
 - **Warm parts:** touch-test after a minute. The relay coil may be warm; nothing else should be.
