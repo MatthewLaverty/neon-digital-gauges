@@ -72,6 +72,7 @@ Status: Phase 0 (discovery). Prepared 2026-10-12. Rev 2: decisions log added (se
 | 2026-10-26 | Tach demo startup GIF revised (owner): cut before the white "neon" card. Frames 0-93 kept (ends on the white car "Hi." frame, 6.27 s); a byte-level cut, no re-encode, 5.9 MB. It plays once, then a 0.3 s fade to black and the face fades up over 1 s. This replaces the 9 s timing and the looping. The original is kept as `firmware/tach-demo/startup_original.gif`. Sketch 6.5 MB; compiles. |
 | 2026-10-26 | Tach demo startup GIF: zoomed x1.33 to fill the full 480 px height (owner: no black bars, losing the sides is accepted). Nearest-pixel scaling on the board, centred; about 60 source px cropped per side. |
 | 2026-11-01 | Owner: all demos done. Bench wiring diagram regenerated with the CrowPanel 1.28" twist knob in place of the 4x4 membrane keypad (`tools/bench/wiring_diagram.py`, `docs/bench/poc_wiring.png`, `docs/bench/POC-WIRING.md`). The knob is mid-bus via CAN board #3 on its I2C connector (IO38 TWAI TX, IO39 TWAI RX; connector 5 V -> 3.3 V LDO -> transceiver; pinout to be verified with a meter); USB-C power on the bench. Hub GPIO8-15 freed. |
+| 2026-11-18 | Permanent USB service bus in the car (owner): an accessible port feeds an on-board hub, with VBUS cut to every board, the hub powered only from the laptop, and the isolator always used. Recorded as a carrier-board design consideration (section 4.8). Section 4.6 corrected: 12 V comes from constant battery through the power-latch relay, not an ignition-switched feed. |
 
 ### 0.1 Speed source options (in preference order)
 CHOSEN 2026-10-16: option 1, with distance from Haltech Trip Meter 1 (0x6F6) rather than integrating speed.
@@ -380,7 +381,7 @@ Keeping the stock odometer also means the stock cluster circuit board (its odome
 
 ### 4.6 Power and protection
 
-The 12 V circuit must be ignition-switched and fused, with reverse-polarity protection, a TVS diode for load dump and spikes, and an automotive-rated buck converter feeding a 5 V rail to all boards. The Pololu D36V28F5 (5 V, 3.2 A) lists a 6–50 V input range and reverse-voltage protection to −40 V ([Pololu](https://www.pololu.com/product/3782)). Budget about 0.3–0.5 A per display at full backlight (an estimate; measure in W1.3).
+The 12 V feed comes from constant battery through the hub-controlled power-latch relay (sensed by RUN/START, held on by the hub for the shutdown fade; see `docs/bench/POC-WIRING.md`, "Power latch"). It must be fused, with reverse-polarity protection, a TVS diode for load dump and spikes, and an automotive-rated buck converter feeding a 5 V rail to all boards. The Pololu D36V28F5 (5 V, 3.2 A) lists a 6–50 V input range and reverse-voltage protection to −40 V ([Pololu](https://www.pololu.com/product/3782)). Budget about 0.3–0.5 A per display at full backlight (an estimate; measure in W1.3).
 
 ### 4.7 Updating firmware after install (Wi-Fi OTA, USB as recovery)
 
@@ -389,11 +390,25 @@ The 12 V circuit must be ignition-switched and fused, with reverse-polarity prot
 - Service mode: Wi-Fi stays off while driving. A long-press button combo makes the hub broadcast a "service" bit, and every board then joins Wi-Fi and starts its OTA listener. Each board shows its name and IP address on screen while in service mode.
 - Partitioning: OTA needs two app slots plus otadata ([Espressif OTA docs](https://docs.espressif.com/projects/esp-idf/en/v5.1.3/esp32/api-reference/system/ota.html)). Pick a 16 MB scheme with OTA and confirm the firmware, including face images, fits in one slot. The first flash with that scheme must be over USB.
 - Rollback: the official Arduino-ESP32 core ships with rollback enabled ([arduino-esp32 discussion](https://github.com/espressif/arduino-esp32/discussions/12350)), but by default it marks a new image valid early at boot ([core source](https://raw.githubusercontent.com/espressif/arduino-esp32/master/cores/esp32/esp32-hal-misc.c)). Override `verifyRollbackLater()` and only mark the image valid after display, CAN, and Wi-Fi are all confirmed working. A bad build then reverts on its own.
-- USB is still required for: the first flash, partition-table changes, and recovery from a build that broke before rollback could catch it. Route a USB-C extension from each gauge (or a small USB hub) to an accessible spot behind the cluster or under the dash.
+- USB is still required for: the first flash, partition-table changes, and recovery from a build that broke before rollback could catch it. Keep USB permanently wired to an accessible port; design rules in section 4.8.
 - Back-feed check: before plugging a laptop into a gauge that is also powered from the car's 5 V rail, check the board schematic for VBUS isolation, or unplug car power first.
 - GitHub: a GitHub Actions job using `arduino-cli` builds one `.bin` per gauge type for each tagged release. Download the right file to your phone and upload it through the web OTA page.
 
 ---
+
+### 4.8 Permanent USB service bus (final board design consideration, 2026-11-18)
+
+Owner decision: keep USB permanently installed in the car, for recovery after a bad flash or any fault that leaves Wi-Fi OTA unusable. The rules below are design requirements for the carrier board, not yet validated on hardware.
+
+- Topology: one accessible USB port (lower dash or glovebox) feeds the upstream side of a hub, preferably a hub IC on the carrier PCB. One downstream link goes to each board: hub ESP32, speedo, tach, 5", and the CrowPanel knob.
+- VBUS is cut on every downstream link. Each link carries D+, D− and GND only, and every board runs from the car's 5 V harness. Otherwise the car's 5 V back-feeds the hub and the laptop (or the isolator) when a laptop is plugged in. On the PCB, leave downstream VBUS unrouted rather than relying on modified cables.
+- The hub is bus-powered from the laptop side only, with no supply of its own. It is off unless a laptop is connected.
+- Always connect through the ADuM3160 USB isolator in the car. The laptop ground and the car ground must not tie together.
+- CrowPanel knob: the MX1.25 plug shares one pin for USB VBUS and power. The car's 5 V goes on that pin, and the hub-side wire for that pin is left out. Meter-check the pin order first; there is no standard.
+- BOOT and RESET: firmware that crashes early or takes over the USB pins can block automatic download mode, and then BOOT must be held while pressing RESET. (This is my understanding of ESP32-S3/P4 behaviour, not tested on these boards.) Keep each board's BOOT and RESET buttons reachable with the bezel off, or wire them out.
+- Limit: USB recovers firmware, not hardware. A spike that kills an ESP32 or its USB circuitry also takes out USB recovery. Spike protection is the fuse, reverse-polarity protection and load-dump TVS diode in section 4.6.
+- Bench check before committing (unverified inference): with the hub unpowered and the boards on car 5 V, each board's D+ pull-up may leak a few mA into the hub IC. Measure the 5 V current with and without the hub link connected, and confirm every board boots normally with the hub unpowered.
+- Lower-part-count alternative: no hub. Run one VBUS-cut extension per board to a small port panel, and move the cable from board to board.
 
 ## 5. Existing Open-Source Work to Use
 
