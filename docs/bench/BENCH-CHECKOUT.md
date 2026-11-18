@@ -39,7 +39,7 @@ No supplies, no module power, hub wires unplugged. Pull out the PARK and IGN sta
 - **Pot:** put its 12 V lead back in the rail.
 - **Supplies:** plug the power module into a phone charger, not the Mac. Turn on the 12 V supply. Meter everything to GND.
 - **Rails:** top + should read 3.3 V (±0.1), bottom + 12 V. Module powered alone, before the 12 V supply is on: bottom + reads 0 V.
-- **Signal columns:** they must stay between 0 and 3.4 V in every stand-in state. Anything above 3.4 V means **STOP**.
+- **Signal columns:** they must stay between 0 and 3.4 V in every stand-in state and at both ends of the pot's travel. Anything above 3.4 V means **STOP**.
 
   | Column | Stand-in out | Stand-in in |
   |---|---|---|
